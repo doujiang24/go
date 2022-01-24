@@ -114,3 +114,7 @@ func mayMoreStackMove() {
 		g.stackguard0 = stackForceMove
 	}
 }
+
+func BindM() {
+	needm()
+}
