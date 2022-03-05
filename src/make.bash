@@ -63,7 +63,7 @@
 # If $GOROOT_BOOTSTRAP/bin/go is missing, $(go env GOROOT) is
 # tried for all "go" in $PATH. $HOME/go1.4 by default.
 
-set -e
+set -x
 
 export GOENV=off
 unset GOBIN # Issue 14340
@@ -220,7 +220,7 @@ fi
 # Run dist bootstrap to complete make.bash.
 # Bootstrap installs a proper cmd/dist, built with the new toolchain.
 # Throw ours, built with Go 1.4, away after bootstrap.
-./cmd/dist/dist bootstrap -a $vflag $GO_DISTFLAGS "$@"
+./cmd/dist/dist bootstrap -v -d -a $vflag $GO_DISTFLAGS "$@"
 rm -f ./cmd/dist/dist
 
 # DO NOT ADD ANY NEW CODE HERE.
