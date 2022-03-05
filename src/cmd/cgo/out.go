@@ -1093,6 +1093,7 @@ func (p *Package) writeExports(fgo2, fm, fgcc, fgcch io.Writer) {
 		}
 		fmt.Fprint(fgo2, "}\n")
 	}
+	fmt.Fprintf(fgcc, "\n%s\n", gccPreBindExtraM)
 
 	fmt.Fprintf(fgcch, "%s", gccExportHeaderEpilog)
 }
@@ -1903,6 +1904,9 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern void WaitRuntimeDoneBeforeBindM(void);
+extern void bindextram(void);
 `
 
 // gccExportHeaderEpilog goes at the end of the generated header file.
@@ -1910,6 +1914,23 @@ const gccExportHeaderEpilog = `
 #ifdef __cplusplus
 }
 #endif
+
+#define PreBindExtraM() \
+	WaitRuntimeDoneBeforeBindM(void); \
+	bindextram(void);
+`
+
+// gccExportHeaderEpilog goes at the end of the generated header file.
+const gccPreBindExtraM = `
+CGO_NO_SANITIZE_THREAD
+void WaitRuntimeDoneBeforeBindM(void)
+{
+	__SIZE_TYPE__ _cgo_ctxt = _cgo_wait_runtime_init_done();
+	// TODO: better call bindextram here,
+	// but got error:
+	// ld: symbol(s) not found for architecture x86_64
+	_cgo_release_context(_cgo_ctxt);
+}
 `
 
 // gccgoExportFileProlog is written to the _cgo_export.c file when
