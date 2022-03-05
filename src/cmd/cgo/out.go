@@ -1093,9 +1093,16 @@ func (p *Package) writeExports(fgo2, fm, fgcc, fgcch io.Writer) {
 		}
 		fmt.Fprint(fgo2, "}\n")
 	}
-	fmt.Fprintf(fgcc, "\n%s\n", gccPreBindExtraM)
+
+	if len(p.ExpFunc) > 0 {
+		fmt.Fprintf(fgcc, "\n%s\n", gccWaitRuntimeDone)
+	}
 
 	fmt.Fprintf(fgcch, "%s", gccExportHeaderEpilog)
+
+	if len(p.ExpFunc) > 0 {
+		fmt.Fprintf(fgcch, "\n%s\n", gccPreBindExtraM)
+	}
 }
 
 // Write out the C header allowing C code to call exported gccgo functions.
@@ -1914,14 +1921,16 @@ const gccExportHeaderEpilog = `
 #ifdef __cplusplus
 }
 #endif
+`
 
+const gccPreBindExtraM = `
 #define PreBindExtraM() \
-	WaitRuntimeDoneBeforeBindM(void); \
-	bindextram(void);
+	WaitRuntimeDoneBeforeBindM(); \
+	bindextram();
 `
 
 // gccExportHeaderEpilog goes at the end of the generated header file.
-const gccPreBindExtraM = `
+const gccWaitRuntimeDone = `
 CGO_NO_SANITIZE_THREAD
 void WaitRuntimeDoneBeforeBindM(void)
 {
