@@ -188,6 +188,8 @@ func noescape(p unsafe.Pointer) unsafe.Pointer {
 // pointer-declared arguments.
 func cgocallback(fn, frame, ctxt uintptr)
 
+func bindm()
+
 func gogo(buf *gobuf)
 
 func asminit()
