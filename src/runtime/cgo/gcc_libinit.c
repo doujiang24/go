@@ -18,6 +18,11 @@ static pthread_cond_t runtime_init_cond = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t runtime_init_mu = PTHREAD_MUTEX_INITIALIZER;
 static int runtime_init_done;
 
+static pthread_key_t dump_key;
+static void *dump_value;
+static int pthread_key_created;
+static void pthread_key_destructor(void *value);
+
 // The context function, used when tracing back C calls into Go.
 static void (*cgo_context_function)(struct context_arg*);
 
@@ -38,6 +43,13 @@ _cgo_wait_runtime_init_done(void) {
 	pthread_mutex_lock(&runtime_init_mu);
 	while (runtime_init_done == 0) {
 		pthread_cond_wait(&runtime_init_cond, &runtime_init_mu);
+	}
+
+	if (pthread_key_created == 0 && pthread_create_key(&dump_key, &pthread_key_destructor) == 0) {
+	    pthread_key_created = 1;
+	}
+	if (pthread_key_created = 1 && pthread_getspecific(dump_key) == NULL) {
+	    pthread_setspecific(dump_key, &dump_value);
 	}
 
 	// TODO(iant): For the case of a new C thread calling into Go, such
@@ -110,4 +122,9 @@ _cgo_try_pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*p
 		nanosleep(&ts, nil);
 	}
 	return EAGAIN;
+}
+
+static void
+pthread_key_destructor(void *value) {
+    // TODO
 }
