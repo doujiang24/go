@@ -862,6 +862,25 @@ nosave:
 GLOBL zeroTLS<>(SB),RODATA,$const_tlsSize
 #endif
 
+// func cgodropm()
+TEXT cgodropm(SB),NOSPLIT,$0-0
+	PUSH_REGS_HOST_TO_ABI0()
+
+	get_tls(CX)
+#ifdef GOOS_windows
+	MOVL	$0, BX
+	CMPQ	CX, $0
+	JEQ	2(PC)
+#endif
+	MOVQ	g(CX), BX
+	CMPQ	BX, $0
+	JEQ	done
+	MOVQ	$runtime·dropm(SB), AX
+	CALL	AX
+done:
+	POP_REGS_HOST_TO_ABI0()
+	RET
+
 // func cgocallback(fn, frame unsafe.Pointer, ctxt uintptr)
 // See cgocall.go for more details.
 TEXT ·cgocallback(SB),NOSPLIT,$24-24
@@ -1001,6 +1020,14 @@ havem:
 	MOVQ	savedm-8(SP), BX
 	CMPQ	BX, $0
 	JNE	done
+	MOVQ	_cgo_pthread_key_created(SB), AX
+	CMPQ	(AX), $0
+	JEQ	dropm
+	MOVQ	_cgo_dropm(SB), AX
+	MOVQ	$cgodropm(SB), BX
+	MOVQ	BX, (AX)
+	JMP	done
+dropm:
 	MOVQ	$runtime·dropm(SB), AX
 	CALL	AX
 #ifdef GOOS_windows
