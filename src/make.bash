@@ -148,7 +148,7 @@ verbose=false
 vflag=""
 if [ "$1" = "-v" ]; then
 	verbose=true
-	vflag=-v
+	vflag="-v=5"
 	shift
 fi
 

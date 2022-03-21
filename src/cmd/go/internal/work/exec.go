@@ -2078,6 +2078,8 @@ func (b *Builder) processOutput(out []byte) string {
 func (b *Builder) runOut(a *Action, dir string, env []string, cmdargs ...any) ([]byte, error) {
 	cmdline := str.StringList(cmdargs...)
 
+	b.Print("DIR: ", dir, ", CMD: ", strings.Join(cmdline, " "), "\n")
+
 	for _, arg := range cmdline {
 		// GNU binutils commands, including gcc and gccgo, interpret an argument
 		// @foo anywhere in the command line (even following --) as meaning
