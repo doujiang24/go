@@ -21,7 +21,7 @@ static int runtime_init_done;
 static pthread_key_t dump_key;
 static void *dump_value;
 static void pthread_key_destructor(void *value);
-uint32_t x_cgo_pthread_key_created;
+uintptr_t x_cgo_pthread_key_created;
 
 // The context function, used when tracing back C calls into Go.
 static void (*cgo_context_function)(struct context_arg*);

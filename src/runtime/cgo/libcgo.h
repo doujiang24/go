@@ -51,7 +51,7 @@ extern void (*_cgo_thread_start)(ThreadStart *ts);
  */
 extern void (*_cgo_sys_thread_create)(void* (*func)(void*), void* arg);
 
-extern uint32_t _cgo_pthread_key_created;
+extern uintptr_t _cgo_pthread_key_created;
 
 /*
  * Creates the new operating system thread (OS, arch dependent).
