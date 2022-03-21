@@ -874,7 +874,7 @@ TEXT cgodropm(SB),NOSPLIT,$0-0
 #endif
 	MOVQ	g(CX), BX
 	CMPQ	BX, $0
-	JNE	done
+	JEQ	done
 	MOVQ	$runtime·dropm(SB), AX
 	CALL	AX
 done:
