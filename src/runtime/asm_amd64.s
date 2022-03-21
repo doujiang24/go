@@ -1002,7 +1002,7 @@ havem:
 	CMPQ	BX, $0
 	JNE	done
 	MOVQ	_cgo_pthread_key_created(SB), AX
-	CMPL	AX, $0
+	CMPQ	(AX), $0
 	JNE	done
 	MOVQ	$runtime·dropm(SB), AX
 	CALL	AX

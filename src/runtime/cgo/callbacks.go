@@ -74,7 +74,7 @@ var _cgo_sys_thread_create = &x_cgo_sys_thread_create
 //go:linkname x_cgo_pthread_key_created x_cgo_pthread_key_created
 //go:linkname _cgo_pthread_key_created _cgo_pthread_key_created
 var x_cgo_pthread_key_created byte
-var _cgo_pthread_key_created = x_cgo_pthread_key_created
+var _cgo_pthread_key_created = &x_cgo_pthread_key_created
 
 // Notifies that the runtime has been initialized.
 //
