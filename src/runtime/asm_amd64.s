@@ -1026,6 +1026,7 @@ havem:
 	MOVQ	_cgo_dropm(SB), AX
 	MOVQ	$cgodropm(SB), BX
 	MOVQ	BX, (AX)
+	JMP	done
 dropm:
 	MOVQ	$runtime·dropm(SB), AX
 	CALL	AX
