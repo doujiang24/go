@@ -76,6 +76,12 @@ var _cgo_sys_thread_create = &x_cgo_sys_thread_create
 var x_cgo_pthread_key_created byte
 var _cgo_pthread_key_created = &x_cgo_pthread_key_created
 
+//go:cgo_import_static x_cgo_dropm
+//go:linkname x_cgo_dropm x_cgo_dropm
+//go:linkname _cgo_dropm _cgo_dropm
+var x_cgo_dropm byte
+var _cgo_dropm = &x_cgo_dropm
+
 // Notifies that the runtime has been initialized.
 //
 // We currently block at every CGO entry point (via _cgo_wait_runtime_init_done)
@@ -110,6 +116,3 @@ var _cgo_yield unsafe.Pointer
 
 //go:cgo_export_static _cgo_topofstack
 //go:cgo_export_dynamic _cgo_topofstack
-
-//go:cgo_export_static _cgo_dropm
-//go:cgo_export_dynamic _cgo_dropm
