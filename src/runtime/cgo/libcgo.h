@@ -14,8 +14,6 @@ typedef uint32_t uint32;
 typedef uint64_t uint64;
 typedef uintptr_t uintptr;
 
-uint32_t x_pthread_key_created;
-
 /*
  * The beginning of the per-goroutine structure,
  * as defined in ../pkg/runtime/runtime.h.
@@ -52,6 +50,8 @@ extern void (*_cgo_thread_start)(ThreadStart *ts);
  * (OS dependent).
  */
 extern void (*_cgo_sys_thread_create)(void* (*func)(void*), void* arg);
+
+extern uint32_t (*_cgo_pthread_key_created)(void);
 
 /*
  * Creates the new operating system thread (OS, arch dependent).

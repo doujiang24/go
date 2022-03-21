@@ -21,6 +21,7 @@ static int runtime_init_done;
 static pthread_key_t dump_key;
 static void *dump_value;
 static void pthread_key_destructor(void *value);
+static uint32_t key_created;
 
 // The context function, used when tracing back C calls into Go.
 static void (*cgo_context_function)(struct context_arg*);
@@ -44,10 +45,10 @@ _cgo_wait_runtime_init_done(void) {
 		pthread_cond_wait(&runtime_init_cond, &runtime_init_mu);
 	}
 
-	if (x_pthread_key_created == 0 && pthread_key_create(&dump_key, &pthread_key_destructor) == 0) {
-	    x_pthread_key_created = 1;
+	if (key_created == 0 && pthread_key_create(&dump_key, &pthread_key_destructor) == 0) {
+	    key_created = 1;
 	}
-	if (x_pthread_key_created == 1 && pthread_getspecific(dump_key) == NULL) {
+	if (key_created == 1 && pthread_getspecific(dump_key) == NULL) {
 	    pthread_setspecific(dump_key, &dump_value);
 	}
 
@@ -71,6 +72,11 @@ _cgo_wait_runtime_init_done(void) {
 		return arg.Context;
 	}
 	return 0;
+}
+
+uint32_t
+x_cgo_pthread_key_created(void) {
+    return key_created;
 }
 
 void
