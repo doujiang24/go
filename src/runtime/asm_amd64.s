@@ -1001,6 +1001,10 @@ havem:
 	MOVQ	savedm-8(SP), BX
 	CMPQ	BX, $0
 	JNE	done
+	MOVQ	_cgo_pthread_key_created(SB), AX
+	CALL	AX
+	CMPL	AX, $0
+	JNE	done
 	MOVQ	$runtime·dropm(SB), AX
 	CALL	AX
 #ifdef GOOS_windows
