@@ -110,3 +110,6 @@ var _cgo_yield unsafe.Pointer
 
 //go:cgo_export_static _cgo_topofstack
 //go:cgo_export_dynamic _cgo_topofstack
+
+//go:cgo_export_static _cgo_dropm
+//go:cgo_export_dynamic _cgo_dropm

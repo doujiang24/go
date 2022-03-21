@@ -32,3 +32,21 @@ TEXT crosscall2(SB),NOSPLIT,$0-0
 	ADJSP	$-0x18
 	POP_REGS_HOST_TO_ABI0()
 	RET
+
+TEXT _cgo_dropm(SB),NOSPLIT,$0-0
+	PUSH_REGS_HOST_TO_ABI0()
+
+	get_tls(CX)
+#ifdef GOOS_windows
+	MOVL	$0, BX
+	CMPQ	CX, $0
+	JEQ	2(PC)
+#endif
+	MOVQ	g(CX), BX
+	CMPQ	BX, $0
+	JNE	done
+	MOVQ	$runtime·dropm(SB), AX
+	CALL	AX
+done:
+	POP_REGS_HOST_TO_ABI0()
+	RET

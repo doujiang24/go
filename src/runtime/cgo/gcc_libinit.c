@@ -126,5 +126,5 @@ _cgo_try_pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*p
 
 static void
 pthread_key_destructor(void *value) {
-    // TODO
+    _cgo_dropm();
 }

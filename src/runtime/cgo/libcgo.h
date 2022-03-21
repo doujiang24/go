@@ -51,6 +51,8 @@ extern void (*_cgo_thread_start)(ThreadStart *ts);
  */
 extern void (*_cgo_sys_thread_create)(void* (*func)(void*), void* arg);
 
+extern void _cgo_dropm(void);
+
 extern uintptr_t _cgo_pthread_key_created;
 
 /*
