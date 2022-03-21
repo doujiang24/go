@@ -14,6 +14,8 @@ typedef uint32_t uint32;
 typedef uint64_t uint64;
 typedef uintptr_t uintptr;
 
+uint32_t x_pthread_key_created;
+
 /*
  * The beginning of the per-goroutine structure,
  * as defined in ../pkg/runtime/runtime.h.
