@@ -55,6 +55,8 @@ extern uintptr_t *_cgo_pthread_key_created;
 
 extern void (**_cgo_dropm)(void);
 
+extern void cgodropm(void);
+
 /*
  * Creates the new operating system thread (OS, arch dependent).
  */

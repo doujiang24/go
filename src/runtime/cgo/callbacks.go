@@ -24,6 +24,9 @@ import "unsafe"
 //go:cgo_export_static crosscall2
 //go:cgo_export_dynamic crosscall2
 
+//go:cgo_export_static cgodropm
+//go:cgo_export_dynamic cgodropm
+
 // Panic. The argument is converted into a Go string.
 
 // Call like this in code compiled with gcc:
