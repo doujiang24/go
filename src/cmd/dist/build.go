@@ -1508,7 +1508,6 @@ func goCmd(goBinary string, cmd string, args ...string) {
 		goCmd = append(goCmd, "-v")
 	}
 	if vflag > 2 {
-		goCmd = append(goCmd, "-x")
 		goCmd = append(goCmd, "-work")
 	}
 
