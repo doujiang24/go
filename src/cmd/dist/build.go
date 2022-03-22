@@ -1507,6 +1507,10 @@ func goCmd(goBinary string, cmd string, args ...string) {
 	if vflag > 0 {
 		goCmd = append(goCmd, "-v")
 	}
+	if vflag > 2 {
+		goCmd = append(goCmd, "-x")
+		goCmd = append(goCmd, "-work")
+	}
 
 	// Force only one process at a time on vx32 emulation.
 	if gohostos == "plan9" && os.Getenv("sysname") == "vx32" {
