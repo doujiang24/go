@@ -865,19 +865,7 @@ GLOBL zeroTLS<>(SB),RODATA,$const_tlsSize
 // func cgodropm()
 TEXT cgodropm(SB),NOSPLIT,$0-0
 	PUSH_REGS_HOST_TO_ABI0()
-
-	get_tls(CX)
-#ifdef GOOS_windows
-	MOVL	$0, BX
-	CMPQ	CX, $0
-	JEQ	2(PC)
-#endif
-	MOVQ	g(CX), BX
-	CMPQ	BX, $0
-	JEQ	done
-	MOVQ	$runtime·dropm(SB), AX
-	CALL	AX
-done:
+	CALL	runtime·dropmCallback(SB)
 	POP_REGS_HOST_TO_ABI0()
 	RET
 

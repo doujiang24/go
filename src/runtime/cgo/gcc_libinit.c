@@ -46,7 +46,7 @@ _cgo_wait_runtime_init_done(void) {
 		pthread_cond_wait(&runtime_init_cond, &runtime_init_mu);
 	}
 
-	if (x_cgo_pthread_key_created == 0 && pthread_key_create(&dump_key, &pthread_key_destructor) == 0) {
+	if (x_cgo_pthread_key_created == 0 && pthread_key_create(&dump_key, pthread_key_destructor) == 0) {
 	    x_cgo_pthread_key_created = 1;
 	}
 	if (x_cgo_pthread_key_created == 1 && pthread_getspecific(dump_key) == NULL) {
