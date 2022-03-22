@@ -355,9 +355,11 @@ var atexits []func()
 
 // xexit exits the process with return code n.
 func xexit(n int) {
-	for i := len(atexits) - 1; i >= 0; i-- {
-		atexits[i]()
-	}
+	/*
+		for i := len(atexits) - 1; i >= 0; i-- {
+			atexits[i]()
+		}
+	*/
 	os.Exit(n)
 }
 
