@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -2079,6 +2080,16 @@ func (b *Builder) runOut(a *Action, dir string, env []string, cmdargs ...any) ([
 	cmdline := str.StringList(cmdargs...)
 
 	b.Print("DIR: ", dir, ", CMD: ", strings.Join(cmdline, " "), "\n")
+
+	hit := false
+	for _, arg := range cmdline {
+		if strings.Contains(arg, "b044/_x005.o") {
+			hit = true
+		}
+	}
+	if hit {
+		debug.PrintStack()
+	}
 
 	for _, arg := range cmdline {
 		// GNU binutils commands, including gcc and gccgo, interpret an argument
