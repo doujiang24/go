@@ -210,6 +210,10 @@ func main() {
 
 	main_init_done = make(chan bool)
 	if iscgo {
+		fn := cgodropm
+		fv := *(**funcval)(unsafe.Pointer(&fn))
+		*(*uintptr)(_cgo_dropm) = fv.fn
+
 		if _cgo_thread_start == nil {
 			throw("_cgo_thread_start missing")
 		}
