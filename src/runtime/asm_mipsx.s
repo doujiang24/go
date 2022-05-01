@@ -610,7 +610,7 @@ havem:
 	BNE	R3, droppedm
 	// Skip dropm to reuse it in next call, when a dummy pthread key has created,
 	// since cgodropm will dropm when thread is exiting.
-	MOVQ	_cgo_pthread_key_created(SB), R3
+	MOVW	_cgo_pthread_key_created(SB), R3
 	BNE	R3, droppedm
 	MOVW	$runtime·dropm(SB), R4
 	JAL	(R4)

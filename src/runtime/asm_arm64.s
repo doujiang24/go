@@ -1259,7 +1259,7 @@ havem:
 	CBNZ	R6, droppedm
 	// Skip dropm to reuse it in next call, when a dummy pthread key has created,
 	// since cgodropm will dropm when thread is exiting.
-	MOVQ	_cgo_pthread_key_created(SB), R6
+	MOVD	_cgo_pthread_key_created(SB), R6
 	CBNZ	R6, droppedm
 	MOVD	$runtime·dropm(SB), R0
 	BL	(R0)

@@ -805,7 +805,7 @@ havem:
 	JNE 6(PC)
 	// Skip dropm to reuse it in next call, when a dummy pthread key has created,
 	// since cgodropm will dropm when thread is exiting.
-	MOVQ	_cgo_pthread_key_created(SB), DX
+	MOVL	_cgo_pthread_key_created(SB), DX
 	CMPL	DX, $0
 	JNE	3(PC)
 	MOVL	$runtime·dropm(SB), AX
