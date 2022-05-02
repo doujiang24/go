@@ -644,7 +644,6 @@ TEXT runtime·cgodropm(SB),NOSPLIT|NOFRAME,$0
 
 skipfpsave:
 	BL	runtime·load_g(SB)
-	// We set up the arguments to cgocallback when saving registers above.
 	BL	runtime·dropmCallback(SB)
 
 	MOVB    runtime·goarm(SB), R11
