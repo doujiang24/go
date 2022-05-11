@@ -1078,11 +1078,6 @@ func sigfwdgo(sig uint32, info *siginfo, ctx unsafe.Pointer) bool {
 		return true
 	}
 
-	// If there is no handler to forward to, no need to forward.
-	if fwdFn == _SIG_DFL {
-		return false
-	}
-
 	c := &sigctxt{info, ctx}
 	// Only forward synchronous signals and SIGPIPE.
 	// Unfortunately, user generated SIGPIPEs will also be forwarded, because si_code
@@ -1100,7 +1095,7 @@ func sigfwdgo(sig uint32, info *siginfo, ctx unsafe.Pointer) bool {
 		return false
 	}
 
-	// Signal not handled by Go, forward it.
+	// Signal not handled by Go, forward it, even there is no handler to forward to.
 	if fwdFn != _SIG_IGN {
 		sigfwd(fwdFn, sig, info, ctx)
 	}
