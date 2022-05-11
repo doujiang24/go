@@ -519,14 +519,16 @@ func TestEarlySignalHandler(t *testing.T) {
 func TestSignalForwarding(t *testing.T) {
 	checkSignalForwardingTest(t)
 
-	if !testWork {
-		defer func() {
-			os.Remove("libgo2.a")
-			os.Remove("libgo2.h")
-			os.Remove("testp" + exeSuffix)
-			os.RemoveAll(filepath.Join(GOPATH, "pkg"))
-		}()
-	}
+	/*
+		if !testWork {
+			defer func() {
+				os.Remove("libgo2.a")
+				os.Remove("libgo2.h")
+				os.Remove("testp" + exeSuffix)
+				os.RemoveAll(filepath.Join(GOPATH, "pkg"))
+			}()
+		}
+	*/
 
 	cmd := exec.Command("go", "build", "-buildmode=c-archive", "-o", "libgo2.a", "./libgo2")
 	if out, err := cmd.CombinedOutput(); err != nil {
@@ -545,7 +547,11 @@ func TestSignalForwarding(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	t.Logf("compile cmd: %v", strings.Join(ccArgs, " "))
+
 	cmd = exec.Command(bin[0], append(bin[1:], "1")...)
+
+	t.Logf("test cmd: %v", strings.Join(bin, " "))
 
 	out, err := cmd.CombinedOutput()
 	t.Logf("%v\n%s", cmd.Args, out)
