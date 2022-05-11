@@ -477,6 +477,18 @@ func TestSignalForwarding(t *testing.T) {
 	out, err := cmd.CombinedOutput()
 	t.Logf("%v\n%s", cmd.Args, out)
 	expectSignal(t, err, syscall.SIGSEGV)
+
+	// SIGPIPE is never forwarded on darwin. See golang.org/issue/33384.
+	if runtime.GOOS != "darwin" && runtime.GOOS != "ios" {
+		// Test SIGPIPE forwarding
+		cmd = exec.Command(bin[0], append(bin[1:], "3")...)
+
+		out, err = cmd.CombinedOutput()
+		if len(out) > 0 {
+			t.Logf("%s", out)
+		}
+		expectSignal(t, err, syscall.SIGPIPE)
+	}
 }
 
 // checkSignalForwardingTest calls t.Skip if the SignalForwarding test
