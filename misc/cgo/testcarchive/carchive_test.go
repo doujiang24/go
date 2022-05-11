@@ -39,6 +39,7 @@ var testWork bool // If true, preserve temporary directories.
 
 func TestMain(m *testing.M) {
 	flag.BoolVar(&testWork, "testwork", false, "if true, log and preserve the test's temporary working directory")
+	testWork = true
 	flag.Parse()
 	if testing.Short() && os.Getenv("GO_BUILDER_NAME") == "" {
 		fmt.Printf("SKIP - short mode and $GO_BUILDER_NAME not set\n")
