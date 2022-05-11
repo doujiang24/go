@@ -447,6 +447,9 @@ func TestSignalForwarding(t *testing.T) {
 		}
 	*/
 
+	dir, _ := os.Getwd()
+	t.Logf("current dir: %v", dir)
+
 	cmd := exec.Command("go", "build", "-buildmode=c-archive", "-o", "libgo2.a", "./libgo2")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Logf("%s", out)
