@@ -1096,7 +1096,9 @@ func sigfwdgo(sig uint32, info *siginfo, ctx unsafe.Pointer) bool {
 	}
 
 	// Signal not handled by Go, forward it, even there is no handler to forward to.
-	if fwdFn != _SIG_IGN {
+	if fwdFn == _SIG_DFL {
+		dieFromSignal(sig)
+	} else if fwdFn != _SIG_IGN {
 		sigfwd(fwdFn, sig, info, ctx)
 	}
 
