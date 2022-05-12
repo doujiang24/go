@@ -433,7 +433,7 @@ func sigtrampgo(sig uint32, info *siginfo, ctx unsafe.Pointer) {
 	c := &sigctxt{info, ctx}
 	g := sigFetchG(c)
 	setg(g)
-	if g == nil {
+	if g == nil || g.m == nil || g.m.incgo {
 		if sig == _SIGPROF {
 			// Some platforms (Linux) have per-thread timers, which we use in
 			// combination with the process-wide timer. Avoid double-counting.
