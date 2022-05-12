@@ -5,6 +5,7 @@
 package carchive_test
 
 import (
+	"bufio"
 	"bytes"
 	"debug/elf"
 	"flag"
@@ -20,6 +21,7 @@ import (
 	"strings"
 	"syscall"
 	"testing"
+	"time"
 	"unicode"
 )
 
