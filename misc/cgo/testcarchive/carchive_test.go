@@ -514,7 +514,7 @@ func TestSignalForwardingExternal(t *testing.T) {
 		// Give the program a chance to enter the sleep function.
 		time.Sleep(time.Millisecond)
 
-		cmd.Process.Signal(syscall.SIGSEGV)
+		cmd.Process.Signal(syscall.SIGPIPE)
 
 		err = cmd.Wait()
 
@@ -522,7 +522,7 @@ func TestSignalForwardingExternal(t *testing.T) {
 			continue
 		}
 
-		if expectSignal(t, err, syscall.SIGSEGV) {
+		if expectSignal(t, err, syscall.SIGPIPE) {
 			return
 		}
 	}
