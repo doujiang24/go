@@ -434,19 +434,22 @@ func checkELFArchiveObject(t *testing.T, arname string, off int64, obj io.Reader
 	}
 }
 
-func TestSignalForwarding(t *testing.T) {
+func TestSignalForwardingExternal(t *testing.T) {
+	if GOOS == "freebsd" || GOOS == "aix" {
+		t.Skipf("skipping on %s/%s; signal always goes to the Go runtime", GOOS, GOARCH)
+	} else if GOOS == "darwin" && GOARCH == "amd64" {
+		t.Skipf("skipping on %s/%s: runtime does not permit SI_USER SIGSEGV", GOOS, GOARCH)
+	}
 	checkSignalForwardingTest(t)
 
-	/*
-		if !testWork {
-			defer func() {
-				os.Remove("libgo2.a")
-				os.Remove("libgo2.h")
-				os.Remove("testp" + exeSuffix)
-				os.RemoveAll(filepath.Join(GOPATH, "pkg"))
-			}()
-		}
-	*/
+	if !testWork {
+		defer func() {
+			os.Remove("libgo2.a")
+			os.Remove("libgo2.h")
+			os.Remove("testp" + exeSuffix)
+			os.RemoveAll(filepath.Join(GOPATH, "pkg"))
+		}()
+	}
 
 	dir, _ := os.Getwd()
 	t.Logf("current dir: %v", dir)
@@ -467,28 +470,62 @@ func TestSignalForwarding(t *testing.T) {
 		t.Logf("%s", out)
 		t.Fatal(err)
 	}
-
 	t.Logf("compile cmd: %v", strings.Join(ccArgs, " "))
 
-	cmd = exec.Command(bin[0], append(bin[1:], "1", "-v")...)
+	// We want to send the process a signal and see if it dies.
+	// Normally the signal goes to the C thread, the Go signal
+	// handler picks it up, sees that it is running in a C thread,
+	// and the program dies. Unfortunately, occasionally the
+	// signal is delivered to a Go thread, which winds up
+	// discarding it because it was sent by another program and
+	// there is no Go handler for it. To avoid this, run the
+	// program several times in the hopes that it will eventually
+	// fail.
+	const tries = 20
+	for i := 0; i < tries; i++ {
+		cmd = exec.Command(bin[0], append(bin[1:], "2")...)
 
-	t.Logf("test cmd: %v", strings.Join(bin, " "))
+		t.Logf("test cmd: %v", strings.Join(bin, " "))
 
-	out, err := cmd.CombinedOutput()
-	t.Logf("%v\n%s", cmd.Args, out)
-	expectSignal(t, err, syscall.SIGSEGV)
-
-	// SIGPIPE is never forwarded on darwin. See golang.org/issue/33384.
-	if runtime.GOOS != "darwin" && runtime.GOOS != "ios" {
-		// Test SIGPIPE forwarding
-		cmd = exec.Command(bin[0], append(bin[1:], "3")...)
-
-		out, err = cmd.CombinedOutput()
-		if len(out) > 0 {
-			t.Logf("%s", out)
+		stderr, err := cmd.StderrPipe()
+		if err != nil {
+			t.Fatal(err)
 		}
-		expectSignal(t, err, syscall.SIGPIPE)
+		defer stderr.Close()
+
+		r := bufio.NewReader(stderr)
+
+		err = cmd.Start()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// Wait for trigger to ensure that the process is started.
+		ok, err := r.ReadString('\n')
+
+		// Verify trigger.
+		if err != nil || ok != "OK\n" {
+			t.Fatalf("Did not receive OK signal")
+		}
+
+		// Give the program a chance to enter the sleep function.
+		time.Sleep(time.Millisecond)
+
+		cmd.Process.Signal(syscall.SIGSEGV)
+
+		err = cmd.Wait()
+
+		if err == nil {
+			continue
+		}
+
+		if expectSignal(t, err, syscall.SIGSEGV) {
+			return
+		}
 	}
+
+	t.Errorf("program succeeded unexpectedly %d times", tries)
 }
 
 // checkSignalForwardingTest calls t.Skip if the SignalForwarding test
