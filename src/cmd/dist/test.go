@@ -1160,8 +1160,8 @@ func (t *tester) cgoTest(dt *distTest) error {
 		// diagnostics.
 		setEnv(cmd, "CGO_CFLAGS", "-g0 -fdiagnostics-color")
 
-		t.addCmd(dt, "misc/cgo/testtls", t.goTest(), "-ldflags", "-linkmode=auto")
-		t.addCmd(dt, "misc/cgo/testtls", t.goTest(), "-ldflags", "-linkmode=external")
+		// t.addCmd(dt, "misc/cgo/testtls", t.goTest(), "-ldflags", "-linkmode=auto")
+		// t.addCmd(dt, "misc/cgo/testtls", t.goTest(), "-ldflags", "-linkmode=external")
 
 		switch pair {
 		case "aix-ppc64", "netbsd-386", "netbsd-amd64":
@@ -1180,12 +1180,12 @@ func (t *tester) cgoTest(dt *distTest) error {
 				fmt.Println("No support for static linking found (lacks libc.a?), skip cgo static linking test.")
 			} else {
 				if goos != "android" {
-					t.addCmd(dt, "misc/cgo/testtls", t.goTest(), "-ldflags", `-linkmode=external -extldflags "-static -pthread"`)
+					// t.addCmd(dt, "misc/cgo/testtls", t.goTest(), "-ldflags", `-linkmode=external -extldflags "-static -pthread"`)
 				}
-				t.addCmd(dt, "misc/cgo/nocgo", t.goTest())
-				t.addCmd(dt, "misc/cgo/nocgo", t.goTest(), "-ldflags", `-linkmode=external`)
+				// t.addCmd(dt, "misc/cgo/nocgo", t.goTest())
+				// t.addCmd(dt, "misc/cgo/nocgo", t.goTest(), "-ldflags", `-linkmode=external`)
 				if goos != "android" {
-					t.addCmd(dt, "misc/cgo/nocgo", t.goTest(), "-ldflags", `-linkmode=external -extldflags "-static -pthread"`)
+					// t.addCmd(dt, "misc/cgo/nocgo", t.goTest(), "-ldflags", `-linkmode=external -extldflags "-static -pthread"`)
 					t.addCmd(dt, "misc/cgo/test", t.goTest(), "-tags=static", "-ldflags", `-linkmode=external -extldflags "-static -pthread"`)
 					// -static in CGO_LDFLAGS triggers a different code path
 					// than -static in -extldflags, so test both.
@@ -1200,8 +1200,8 @@ func (t *tester) cgoTest(dt *distTest) error {
 				if t.internalLink() && t.internalLinkPIE() && !skipInternalLink {
 					t.addCmd(dt, "misc/cgo/test", t.goTest(), "-buildmode=pie", "-ldflags=-linkmode=internal", "-tags=internal,internal_pie")
 				}
-				t.addCmd(dt, "misc/cgo/testtls", t.goTest(), "-buildmode=pie")
-				t.addCmd(dt, "misc/cgo/nocgo", t.goTest(), "-buildmode=pie")
+				// t.addCmd(dt, "misc/cgo/testtls", t.goTest(), "-buildmode=pie")
+				// t.addCmd(dt, "misc/cgo/nocgo", t.goTest(), "-buildmode=pie")
 			}
 		}
 	}
