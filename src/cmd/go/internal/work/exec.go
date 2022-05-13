@@ -152,7 +152,7 @@ func (b *Builder) Do(ctx context.Context, root *Action) {
 			if err == errPrintedOutput {
 				base.SetExitStatus(2)
 			} else {
-				base.Errorf("%s", err)
+				base.Errorf("work exec err: %s", err)
 			}
 			a.Failed = true
 		}
