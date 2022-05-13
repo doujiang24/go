@@ -55,7 +55,6 @@ func (f explicitStringFlag) Set(v string) error {
 func AddBuildFlagsNX(flags *flag.FlagSet) {
 	flags.BoolVar(&cfg.BuildN, "n", false, "")
 	flags.BoolVar(&cfg.BuildX, "x", false, "")
-	cfg.BuildX = true
 }
 
 // AddModFlag adds the -mod build flag to the flag set.

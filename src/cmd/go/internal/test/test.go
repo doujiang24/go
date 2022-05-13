@@ -746,6 +746,7 @@ func runTest(ctx context.Context, cmd *base.Command, args []string) {
 
 	var b work.Builder
 	b.Init()
+	cfg.BuildX = true
 
 	if cfg.BuildI {
 		fmt.Fprint(os.Stderr, "go: -i flag is deprecated\n")
