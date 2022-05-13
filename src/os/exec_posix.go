@@ -7,9 +7,12 @@
 package os
 
 import (
+	"fmt"
 	"internal/itoa"
 	"internal/syscall/execenv"
+	"os"
 	"runtime"
+	"runtime/debug"
 	"syscall"
 )
 
@@ -110,6 +113,9 @@ func (p *ProcessState) String() string {
 			res = "exit status " + itoa.Itoa(code) // unix
 		}
 	case status.Signaled():
+		if os.Getenv("TEST_DUMP_SIGNAL_BT") != "" {
+			fmt.Fprintf(Stderr, "signaled: %v", debug.Stack())
+		}
 		res = "signal: " + status.Signal().String()
 	case status.Stopped():
 		res = "stop signal: " + status.StopSignal().String()
