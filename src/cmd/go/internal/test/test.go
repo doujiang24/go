@@ -1377,6 +1377,10 @@ func (c *runCache) builderRunTest(b *work.Builder, ctx context.Context, a *work.
 		cmd.Env = env
 	}
 
+	fmt.Fprintf(cmd.Stdout, "test exec cmd args: %v", strings.Join(cmd.Args, " "))
+	fmt.Fprintf(cmd.Stdout, "test exec cmd dir: %v", cmd.Dir)
+	fmt.Fprintf(cmd.Stdout, "test exec cmd Env: %v", strings.Join(cmd.Env, " "))
+
 	t0 := time.Now()
 	err = cmd.Start()
 
@@ -1445,7 +1449,7 @@ func (c *runCache) builderRunTest(b *work.Builder, ctx context.Context, a *work.
 		if len(out) == 0 {
 			// If there was no test output, print the exit status so that the reason
 			// for failure is clear.
-			fmt.Fprintf(cmd.Stdout, "%s\n", err)
+			fmt.Fprintf(cmd.Stdout, "test exec cmd err: %s\n", err)
 		} else if !bytes.HasSuffix(out, []byte("\n")) {
 			// Otherwise, ensure that the output ends with a newline before the FAIL
 			// line we're about to print (https://golang.org/issue/49317).
