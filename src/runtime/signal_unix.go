@@ -455,8 +455,14 @@ func sigtrampgo(sig uint32, info *siginfo, ctx unsafe.Pointer) {
 			}
 			return
 		}
+		if g != nil {
+			setg(nil)
+		}
 		c.fixsigcode(sig)
 		badsignal(uintptr(sig), c)
+		if g != nil {
+			setg(g)
+		}
 		return
 	}
 
