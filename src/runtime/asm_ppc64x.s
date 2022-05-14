@@ -619,7 +619,7 @@ g0:
 	MOVW	R3, ret+16(FP)
 	RET
 
-TEXT runtime.saveregs2(SB),NOSPLIT|NOFRAME,$0
+TEXT runtime·saveregs2(SB),NOSPLIT|NOFRAME,$0
 	// O=-288; for R in R{14..31}; do echo "\tMOVD\t$R, $O(R1)"|sed s/R30/g/; ((O+=8)); done; for F in F{14..31}; do echo "\tFMOVD\t$F, $O(R1)"; ((O+=8)); done
 	MOVD	R14, -288(R1)
 	MOVD	R15, -280(R1)
@@ -660,7 +660,7 @@ TEXT runtime.saveregs2(SB),NOSPLIT|NOFRAME,$0
 
 	RET
 
-TEXT runtime.restoreregs2(SB),NOSPLIT|NOFRAME,$0
+TEXT runtime·restoreregs2(SB),NOSPLIT|NOFRAME,$0
 	// O=-288; for R in R{14..31}; do echo "\tMOVD\t$O(R1), $R"|sed s/R30/g/; ((O+=8)); done; for F in F{14..31}; do echo "\tFMOVD\t$O(R1), $F"; ((O+=8)); done
 	MOVD	-288(R1), R14
 	MOVD	-280(R1), R15
@@ -712,7 +712,7 @@ TEXT runtime·cgodropm(SB),NOSPLIT|NOFRAME,$0
 	MOVW	CR, R0		// Save CR in caller's frame
 	MOVW	R0, 8(R1)
 
-	BL	runtime.saveregs2(SB)
+	BL	runtime·saveregs2(SB)
 
 	MOVDU	R1, (-288-FIXED_FRAME)(R1)
 	// Save the caller's R2
@@ -735,7 +735,7 @@ TEXT runtime·cgodropm(SB),NOSPLIT|NOFRAME,$0
 	MOVD	24(R1), R2
 	ADD	$(288+FIXED_FRAME), R1
 
-	BL	runtime.restoreregs2(SB)
+	BL	runtime·restoreregs2(SB)
 
 	MOVW	8(R1), R0
 	MOVFL	R0, $0xff

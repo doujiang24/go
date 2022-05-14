@@ -21,7 +21,7 @@ TEXT crosscall2(SB),NOSPLIT|NOFRAME,$0
 	MOVW	CR, R0		// Save CR in caller's frame
 	MOVW	R0, 8(R1)
 
-	BL	runtime.saveregs2(SB)
+	BL	runtime·saveregs2(SB)
 
 	MOVDU	R1, (-288-3*8-FIXED_FRAME)(R1)
 	// Save the caller's R2
@@ -48,7 +48,7 @@ TEXT crosscall2(SB),NOSPLIT|NOFRAME,$0
 	MOVD	24(R1), R2
 	ADD	$(288+3*8+FIXED_FRAME), R1
 
-	BL	runtime.restoreregs2(SB)
+	BL	runtime·restoreregs2(SB)
 
 	MOVW	8(R1), R0
 	MOVFL	R0, $0xff
