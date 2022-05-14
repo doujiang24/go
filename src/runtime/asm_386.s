@@ -684,7 +684,7 @@ nosave:
 // When calling go exported function from C, we register a destructor
 // callback by using pthread_key_create, cgodropm will be invoked
 // when thread exiting.
-TEXT runtime·cgodropm(SB),NOSPLIT,$16-16
+TEXT runtime·cgodropm(SB),NOSPLIT,$0-0
 	MOVL BP, 12(SP)
 	MOVL BX, 8(SP)
 	MOVL SI, 4(SP)
