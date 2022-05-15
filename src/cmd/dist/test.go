@@ -389,6 +389,9 @@ func (t *tester) registerStdTest(pkg string, useG3 bool) {
 			cmd := exec.Command("go", args...)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
+			log.Printf("test cmd dir: %v", cmd.Dir)
+			log.Printf("test cmd args: %v", strings.Join(cmd.Args, " "))
+			log.Printf("test cmd env: %v", strings.Join(cmd.Env, " "))
 			return cmd.Run()
 		},
 	})
@@ -1228,6 +1231,9 @@ func (t *tester) runPending(nextTest *distTest) {
 				w.out = []byte(fmt.Sprintf("skipped due to earlier error\n"))
 			} else {
 				timelog("start", w.dt.name)
+				log.Printf("work cmd dir: %v", w.cmd.Dir)
+				log.Printf("work cmd args: %v", strings.Join(w.cmd.Args, " "))
+				log.Printf("work cmd env: %v", strings.Join(w.cmd.Env, " "))
 				w.out, w.err = w.cmd.CombinedOutput()
 				if w.err != nil {
 					if isUnsupportedVMASize(w) {
