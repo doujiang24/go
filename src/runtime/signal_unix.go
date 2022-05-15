@@ -433,7 +433,7 @@ func sigtrampgo(sig uint32, info *siginfo, ctx unsafe.Pointer) {
 	c := &sigctxt{info, ctx}
 	g := sigFetchG(c)
 	setg(g)
-	if g == nil || g.m == nil || g.m.dropped {
+	if g == nil || (g.m != nil && g.m.dropped) {
 		if sig == _SIGPROF {
 			// Some platforms (Linux) have per-thread timers, which we use in
 			// combination with the process-wide timer. Avoid double-counting.
@@ -454,6 +454,9 @@ func sigtrampgo(sig uint32, info *siginfo, ctx unsafe.Pointer) {
 				atomic.Xadd(&pendingPreemptSignals, -1)
 			}
 			return
+		}
+		if g != nil {
+			dropm()
 		}
 		c.fixsigcode(sig)
 		badsignal(uintptr(sig), c)
