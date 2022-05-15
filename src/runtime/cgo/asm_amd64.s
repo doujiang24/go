@@ -27,9 +27,13 @@ TEXT crosscall2(SB),NOSPLIT,$0-0
 	MOVQ	R9, 0x10(SP)	/* ctxt */
 #endif
 	CALL	runtime·testcallruntime(SB)
+	CALL	testcgocall<>(SB)
 
 	CALL	runtime·cgocallback(SB)
 
 	ADJSP	$-0x18
 	POP_REGS_HOST_TO_ABI0()
+	RET
+
+TEXT testcgocall<>(SB),NOSPLIT|NOFRAME,$0
 	RET
