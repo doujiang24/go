@@ -24,9 +24,9 @@ var toRemove []string
 
 func TestMain(m *testing.M) {
 	status := m.Run()
-	for _, file := range toRemove {
-		os.RemoveAll(file)
-	}
+	// for _, file := range toRemove {
+	// 	os.RemoveAll(file)
+	// }
 	os.Exit(status)
 }
 
@@ -124,7 +124,11 @@ func buildTestProg(t *testing.T, binary string, flags ...string) (string, error)
 		t.Logf("running go build -o %s %s", exe, strings.Join(flags, " "))
 		cmd := exec.Command(testenv.GoToolPath(t), append([]string{"build", "-o", exe}, flags...)...)
 		cmd.Dir = "testdata/" + binary
-		out, err := testenv.CleanCmdEnv(cmd).CombinedOutput()
+		cmd = testenv.CleanCmdEnv(cmd)
+		t.Logf("build cmd dir: %v", cmd.Dir)
+		t.Logf("build cmd args: %v", strings.Join(cmd.Args, " "))
+		t.Logf("build cmd env: %v", strings.Join(cmd.Env, " "))
+		out, err := cmd.CombinedOutput()
 		if err != nil {
 			target.err = fmt.Errorf("building %s %v: %v\n%s", binary, flags, err, out)
 		} else {

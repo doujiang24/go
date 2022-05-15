@@ -321,6 +321,9 @@ func RunWithTimeout(t testing.TB, cmd *exec.Cmd) ([]byte, error) {
 	var b bytes.Buffer
 	cmd.Stdout = &b
 	cmd.Stderr = &b
+	t.Logf("run cmd dir: %v", cmd.Dir)
+	t.Logf("run cmd args: %v", strings.Join(cmd.Args, " "))
+	t.Logf("run cmd env: %v", strings.Join(cmd.Env, " "))
 	if err := cmd.Start(); err != nil {
 		t.Fatalf("starting %s: %v", args, err)
 	}
