@@ -872,6 +872,10 @@ TEXT runtime·cgodropm(SB),NOSPLIT,$0-0
 	POP_REGS_HOST_TO_ABI0()
 	RET
 
+// func testcallruntime()
+TEXT runtime·testcallruntime(SB),NOSPLIT,$0-0
+	RET
+
 // func cgocallback(fn, frame unsafe.Pointer, ctxt uintptr)
 // See cgocall.go for more details.
 TEXT ·cgocallback(SB),NOSPLIT,$24-24

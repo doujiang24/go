@@ -26,6 +26,7 @@ TEXT crosscall2(SB),NOSPLIT,$0-0
 	// Skip n in R8.
 	MOVQ	R9, 0x10(SP)	/* ctxt */
 #endif
+	CALL	runtime·testcallruntime(SB)
 
 	CALL	runtime·cgocallback(SB)
 
