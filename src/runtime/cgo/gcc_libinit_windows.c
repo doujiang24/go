@@ -56,6 +56,8 @@ _cgo_maybe_run_preinit() {
 
 void
 x_cgo_sys_thread_create(void (*func)(void*), void* arg) {
+    x_cgo_pthread_key_created = 0;
+    x_cgo_dropm = NULL;
 	uintptr_t thandle;
 
 	thandle = _beginthread(func, 0, arg);
