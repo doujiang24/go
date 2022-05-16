@@ -22,8 +22,8 @@ static CRITICAL_SECTION runtime_init_cs;
 static HANDLE runtime_init_wait;
 static int runtime_init_done;
 
-uintptr_t x_cgo_pthread_key_created;
-void (*x_cgo_dropm)(void);
+uintptr_t x_cgo_pthread_key_created = 0;
+void (*x_cgo_dropm)(void) = NULL;
 
 // Pre-initialize the runtime synchronization objects
 void
