@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"syscall"
 )
 
 func sendCtrlBreak(pid int) {
