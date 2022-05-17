@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"syscall"
+	"os"
+	"strconv"
 )
 
 func sendCtrlBreak(pid int) {
@@ -25,5 +26,18 @@ func sendCtrlBreak(pid int) {
 }
 
 func main() {
+	l := len(os.Args)
+	if l != 2 {
+		fmt.Printf("wrong argument number: %v\n", l)
+		return
+	}
+
+	pid, err := strconv.Atoi(os.Args[1])
+	if err != nil {
+		fmt.Printf("invalid pid: %v\n", err)
+		return
+	}
+	fmt.Printf("pid: %v\n", pid)
+
 	sendCtrlBreak(1)
 }
