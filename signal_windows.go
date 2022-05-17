@@ -46,6 +46,7 @@ func main() {
 	signal.Notify(c)
 	select {
 	case s := <-c:
+		log.Printf("signal received: got %v\n", s)
 		if s != os.Interrupt {
 			log.Fatalf("Wrong signal received: got %q, want %q\n", s, os.Interrupt)
 		}
@@ -96,5 +97,6 @@ func main() {
 		fmt.Printf("Program exited with error: %v\n%v", err, string(b.Bytes()))
 		return
 	}
-	fmt.Printf("ok\n")
+	result, err := cmd.Output()
+	fmt.Printf("result: %v, err: %v\n", result, err)
 }

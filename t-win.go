@@ -19,6 +19,7 @@ func main() {
 		if s != os.Interrupt {
 			log.Fatalf("Wrong signal received: got %q, want %q\n", s, os.Interrupt)
 		}
+
 	case <-time.After(60 * time.Second):
 		log.Fatalf("Timeout waiting for Ctrl+Break\n")
 	}
