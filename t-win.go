@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -8,6 +9,9 @@ import (
 )
 
 func main() {
+	pid := os.Getpid()
+	fmt.Printf("pid: %v\n", pid)
+
 	c := make(chan os.Signal, 10)
 	signal.Notify(c)
 	select {
