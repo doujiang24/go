@@ -1101,54 +1101,54 @@ nosave:
 // callback by using pthread_key_create, cgodropm will be invoked
 // when thread exiting.
 TEXT runtime·cgodropm(SB),NOSPLIT|NOFRAME,$0
-	SUB	$(8*21), RSP
-	MOVD	R19, (8*1)(RSP)
-	MOVD	R20, (8*2)(RSP)
-	MOVD	R21, (8*3)(RSP)
-	MOVD	R22, (8*4)(RSP)
-	MOVD	R23, (8*5)(RSP)
-	MOVD	R24, (8*6)(RSP)
-	MOVD	R25, (8*7)(RSP)
-	MOVD	R26, (8*8)(RSP)
-	MOVD	R27, (8*9)(RSP)
-	MOVD	g, (8*10)(RSP)
-	MOVD	R29, (8*11)(RSP)
-	MOVD	R30, (8*12)(RSP)
-	FMOVD	F8, (8*13)(RSP)
-	FMOVD	F9, (8*14)(RSP)
-	FMOVD	F10, (8*15)(RSP)
-	FMOVD	F11, (8*16)(RSP)
-	FMOVD	F12, (8*17)(RSP)
-	FMOVD	F13, (8*18)(RSP)
-	FMOVD	F14, (8*19)(RSP)
-	FMOVD	F15, (8*20)(RSP)
+	SUB	$(8*20), RSP
+	MOVD	R19, (8*0)(RSP)
+	MOVD	R20, (8*1)(RSP)
+	MOVD	R21, (8*2)(RSP)
+	MOVD	R22, (8*3)(RSP)
+	MOVD	R23, (8*4)(RSP)
+	MOVD	R24, (8*5)(RSP)
+	MOVD	R25, (8*6)(RSP)
+	MOVD	R26, (8*7)(RSP)
+	MOVD	R27, (8*8)(RSP)
+	MOVD	g, (8*9)(RSP)
+	MOVD	R29, (8*10)(RSP)
+	MOVD	R30, (8*11)(RSP)
+	FMOVD	F8, (8*12)(RSP)
+	FMOVD	F9, (8*13)(RSP)
+	FMOVD	F10, (8*14)(RSP)
+	FMOVD	F11, (8*15)(RSP)
+	FMOVD	F12, (8*16)(RSP)
+	FMOVD	F13, (8*17)(RSP)
+	FMOVD	F14, (8*18)(RSP)
+	FMOVD	F15, (8*19)(RSP)
 
 	// Initialize Go ABI environment
 	BL	runtime·load_g(SB)
 
 	BL	runtime·dropmCallback(SB)
 
-	MOVD	(8*1)(RSP), R19
-	MOVD	(8*2)(RSP), R20
-	MOVD	(8*3)(RSP), R21
-	MOVD	(8*4)(RSP), R22
-	MOVD	(8*5)(RSP), R23
-	MOVD	(8*6)(RSP), R24
-	MOVD	(8*7)(RSP), R25
-	MOVD	(8*8)(RSP), R26
-	MOVD	(8*9)(RSP), R27
-	MOVD	(8*10)(RSP), g
-	MOVD	(8*11)(RSP), R29
-	MOVD	(8*12)(RSP), R30
-	FMOVD	(8*13)(RSP), F8
-	FMOVD	(8*14)(RSP), F9
-	FMOVD	(8*15)(RSP), F10
-	FMOVD	(8*16)(RSP), F11
-	FMOVD	(8*17)(RSP), F12
-	FMOVD	(8*18)(RSP), F13
-	FMOVD	(8*19)(RSP), F14
-	FMOVD	(8*20)(RSP), F15
-	ADD	$(8*21), RSP
+	MOVD	(8*0)(RSP), R19
+	MOVD	(8*1)(RSP), R20
+	MOVD	(8*2)(RSP), R21
+	MOVD	(8*3)(RSP), R22
+	MOVD	(8*4)(RSP), R23
+	MOVD	(8*5)(RSP), R24
+	MOVD	(8*6)(RSP), R25
+	MOVD	(8*7)(RSP), R26
+	MOVD	(8*8)(RSP), R27
+	MOVD	(8*9)(RSP), g
+	MOVD	(8*10)(RSP), R29
+	MOVD	(8*11)(RSP), R30
+	FMOVD	(8*12)(RSP), F8
+	FMOVD	(8*13)(RSP), F9
+	FMOVD	(8*14)(RSP), F10
+	FMOVD	(8*15)(RSP), F11
+	FMOVD	(8*16)(RSP), F12
+	FMOVD	(8*17)(RSP), F13
+	FMOVD	(8*18)(RSP), F14
+	FMOVD	(8*19)(RSP), F15
+	ADD	$(8*20), RSP
 	RET
 
 // cgocallback(fn, frame unsafe.Pointer, ctxt uintptr)
