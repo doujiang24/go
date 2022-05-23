@@ -19,7 +19,7 @@ package main
 
 extern void GoNeedM();
 
-#define SIGNALERS 10
+#define SIGNALERS 1
 
 static void* needmSignalThread(void* p) {
 	pthread_t* pt = (pthread_t*)(p);
@@ -37,7 +37,7 @@ static void* needmSignalThread(void* p) {
 // We don't need many calls, as the deadlock is only likely
 // to occur the first couple of times that needm is called.
 // After that there will likely be an extra M available.
-#define CALLS 10
+#define CALLS 1
 
 static void* needmCallbackThread(void* p) {
 	int i;
@@ -75,7 +75,7 @@ import (
 )
 
 func init() {
-	register("NeedmDeadlock", NeedmDeadlock)
+	// register("NeedmDeadlock", NeedmDeadlock)
 }
 
 //export GoNeedM
@@ -86,11 +86,15 @@ func NeedmDeadlock() {
 	// The failure symptom is that the program hangs because of a
 	// deadlock in needm, so set an alarm.
 	go func() {
-		time.Sleep(5 * time.Second)
-		fmt.Println("Hung for 5 seconds")
+		time.Sleep(500 * time.Second)
+		fmt.Println("Hung for 500 seconds")
 		os.Exit(1)
 	}()
 
 	C.runNeedmSignalThread()
 	fmt.Println("OK")
+}
+
+func main() {
+	NeedmDeadlock()
 }
