@@ -214,6 +214,9 @@ func main() {
 		if _cgo_pthread_key_created == nil {
 			throw("_cgo_pthread_key_created missing")
 		}
+		systemstack(func() {
+			print("_cgo_pthread_key_created: ", _cgo_pthread_key_created, "\n")
+		})
 
 		if _cgo_thread_start == nil {
 			throw("_cgo_thread_start missing")
