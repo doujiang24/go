@@ -75,6 +75,7 @@ _cgo_is_runtime_initialized() {
 
 uintptr_t
 _cgo_wait_runtime_init_done(void) {
+	fprintf(stderr, "&x_cgo_pthread_key_created: %p\n", &x_cgo_pthread_key_created);
 	void (*pfn)(struct context_arg*);
 
 	 _cgo_maybe_run_preinit();
