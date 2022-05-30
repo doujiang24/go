@@ -141,6 +141,8 @@ var runtimeInitTime int64
 // Value to use for signal mask for newly created M's.
 var initSigmask sigset
 
+var always_zero uint64 = 0
+
 // The main goroutine.
 func main() {
 	g := getg()
@@ -236,6 +238,8 @@ func main() {
 		// a C-created thread and need to create a new thread.
 		startTemplateThread()
 		cgocall(_cgo_notify_runtime_init_done, nil)
+	} else {
+		_cgo_pthread_key_created = unsafe.Pointer(&always_zero)
 	}
 
 	doInit(&main_inittask)
