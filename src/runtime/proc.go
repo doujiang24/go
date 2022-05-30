@@ -211,6 +211,9 @@ func main() {
 	main_init_done = make(chan bool)
 	if iscgo {
 		*(*uintptr)(_cgo_dropm) = abi.FuncPCABI0(cgodropm)
+		if _cgo_pthread_key_created == nil {
+			throw("_cgo_pthread_key_created missing")
+		}
 
 		if _cgo_thread_start == nil {
 			throw("_cgo_thread_start missing")
