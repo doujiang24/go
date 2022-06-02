@@ -187,7 +187,7 @@ func GoroutineStats(events []*Event) map[uint64]*GDesc {
 			gs[g.ID] = g
 		case EvGoStart, EvGoStartLabel:
 			g := gs[ev.G]
-			if g.PC == 0 {
+			if g.PC == 0 && len(ev.Stk) > 0 {
 				g.PC = ev.Stk[0].PC
 				g.Name = ev.Stk[0].Fn
 			}

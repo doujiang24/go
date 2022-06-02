@@ -1920,6 +1920,7 @@ func oneNewExtraM() {
 	mp.curg = gp
 	mp.lockedInt++
 	mp.lockedg.set(gp)
+	mp.isextra = true
 	gp.lockedm.set(mp)
 	gp.goid = int64(atomic.Xadd64(&sched.goidgen, 1))
 	if raceenabled {
