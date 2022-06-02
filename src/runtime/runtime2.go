@@ -503,6 +503,8 @@ type m struct {
 	newSigstack   bool // minit on C thread called sigaltstack
 	printlock     int8
 	incgo         bool   // m is executing a cgo call
+	isextra       bool   // m is an extra m
+	cgolevel      int32  // level of cgo call
 	freeWait      uint32 // if == 0, safe to free g0 and delete m (atomic)
 	fastrand      [2]uint32
 	needextram    bool

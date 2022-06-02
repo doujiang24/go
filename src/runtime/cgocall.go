@@ -201,6 +201,9 @@ func cgocallbackg(ctxt uintptr) {
 	savedpc := gp.syscallpc
 	exitsyscall() // coming out of cgo call
 	gp.m.incgo = false
+	if gp.m.isextra {
+		gp.m.cgolevel++
+	}
 
 	osPreemptExtExit(gp.m)
 
@@ -213,6 +216,13 @@ func cgocallbackg(ctxt uintptr) {
 	osPreemptExtEnter(gp.m)
 
 	gp.m.incgo = true
+	if gp.m.isextra {
+		gp.m.cgolevel--
+		if gp.m.cgolevel < 0 {
+			throw("unexpected negative cgolevel")
+		}
+	}
+
 	// going back to cgo call
 	reentersyscall(savedpc, uintptr(savedsp))
 

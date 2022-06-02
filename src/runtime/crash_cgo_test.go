@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build cgo
 // +build cgo
 
 package runtime_test
@@ -557,6 +558,19 @@ func TestNeedmDeadlock(t *testing.T) {
 		t.Skipf("no signals on %s", runtime.GOOS)
 	}
 	output := runTestProg(t, "testprogcgo", "NeedmDeadlock")
+	want := "OK\n"
+	if output != want {
+		t.Fatalf("want %s, got %s\n", want, output)
+	}
+}
+
+func TestCgoTraceParser(t *testing.T) {
+	// Test issue 29707.
+	switch runtime.GOOS {
+	case "windows", "plan9":
+		t.Skipf("skipping cgo trace parser test on %s", runtime.GOOS)
+	}
+	output := runTestProg(t, "testprogcgo", "CgoTraceParser")
 	want := "OK\n"
 	if output != want {
 		t.Fatalf("want %s, got %s\n", want, output)

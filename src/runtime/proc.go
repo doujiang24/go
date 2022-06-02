@@ -1575,6 +1575,7 @@ func oneNewExtraM() {
 	mp.curg = gp
 	mp.lockedInt++
 	mp.lockedg.set(gp)
+	mp.isextra = true
 	gp.lockedm.set(mp)
 	gp.goid = int64(atomic.Xadd64(&sched.goidgen, 1))
 	if raceenabled {
@@ -2112,9 +2113,13 @@ func execute(gp *g, inheritTime bool) {
 	}
 
 	if trace.enabled {
-		// GoSysExit has to happen when we have a P, but before GoStart.
-		// So we emit it here.
-		if gp.syscallsp != 0 && gp.sysblocktraced {
+		if gp.m.isextra && gp.m.cgolevel == 0 {
+			// GoCreate happen in needm, but there is no P.
+			// So we emit it here.
+			traceGoCreate(gp, 0) // no start pc for locked g in extra M
+		} else if gp.syscallsp != 0 && gp.sysblocktraced {
+			// GoSysExit has to happen when we have a P, but before GoStart.
+			// So we emit it here.
 			traceGoSysExit(gp.sysexitticks)
 		}
 		traceGoStart()
@@ -2990,7 +2995,14 @@ func reentersyscall(pc, sp uintptr) {
 	}
 
 	if trace.enabled {
-		systemstack(traceGoSysCall)
+		if _g_.m.isextra && _g_.m.cgolevel == 0 {
+			systemstack(func() {
+				traceGoEnd()
+				traceProcStop(_g_.m.p.ptr())
+			})
+		} else {
+			systemstack(traceGoSysCall)
+		}
 		// systemstack itself clobbers g.sched.{pc,sp} and we might
 		// need them later when the G is genuinely blocked in a
 		// syscall
@@ -3015,10 +3027,19 @@ func reentersyscall(pc, sp uintptr) {
 	pp.m = 0
 	_g_.m.oldp.set(pp)
 	_g_.m.p = 0
-	atomic.Store(&pp.status, _Psyscall)
-	if sched.gcwaiting != 0 {
-		systemstack(entersyscall_gcwait)
+
+	if _g_.m.isextra && _g_.m.cgolevel == 0 {
+		atomic.Store(&pp.status, _Pidle)
+		systemstack(func() {
+			handoffp(pp)
+		})
 		save(pc, sp)
+	} else {
+		atomic.Store(&pp.status, _Psyscall)
+		if sched.gcwaiting != 0 {
+			systemstack(entersyscall_gcwait)
+			save(pc, sp)
+		}
 	}
 
 	_g_.m.locks--
@@ -3234,7 +3255,13 @@ func exitsyscallfast(oldp *p) bool {
 						osyield()
 					}
 				}
-				traceGoSysExit(0)
+				if _g_.m.isextra && _g_.m.cgolevel == 0 {
+					// GoCreate happen in needm, but there is no P.
+					// So we emit it here.
+					traceGoCreate(_g_, 0) // no start pc for locked g in extra M
+				} else {
+					traceGoSysExit(0)
+				}
 			}
 		})
 		if ok {
@@ -3257,10 +3284,16 @@ func exitsyscallfast_reacquired() {
 			// traceGoSysBlock for this syscall was already emitted,
 			// but here we effectively retake the p from the new syscall running on the same p.
 			systemstack(func() {
-				// Denote blocking of the new syscall.
-				traceGoSysBlock(_g_.m.p.ptr())
-				// Denote completion of the current syscall.
-				traceGoSysExit(0)
+				if _g_.m.isextra && _g_.m.cgolevel == 0 {
+					// GoCreate happen in needm, but there is no P.
+					// So we emit it here.
+					traceGoCreate(_g_, 0) // no start pc for locked g in extra M
+				} else {
+					// Denote blocking of the new syscall.
+					traceGoSysBlock(_g_.m.p.ptr())
+					// Denote completion of the current syscall.
+					traceGoSysExit(0)
+				}
 			})
 		}
 		_g_.m.p.ptr().syscalltick++
