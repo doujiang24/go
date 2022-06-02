@@ -57,6 +57,9 @@ func httpGoroutines(w http.ResponseWriter, r *http.Request) {
 		gs1 := gss[g.PC]
 		gs1.ID = g.PC
 		gs1.Name = g.Name
+		if g.PC == 0 && gs1.Name == "" {
+			gs1.Name = "g-extra-M"
+		}
 		gs1.N++
 		gs1.ExecTime += g.ExecTime
 		gss[g.PC] = gs1
