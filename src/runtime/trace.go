@@ -225,8 +225,7 @@ func StartTrace() error {
 	// World is stopped, no need to lock.
 	forEachGRace(func(gp *g) {
 		status := readgstatus(gp)
-		m := gp.m
-		if status != _Gdead || (m != nil && m.isextra) {
+		if status != _Gdead || (gp.m != nil && gp.m.isextra) {
 			gp.traceseq = 0
 			gp.tracelastp = getg().m.p
 			// +PCQuantum because traceFrameForPC expects return PCs and subtracts PCQuantum.

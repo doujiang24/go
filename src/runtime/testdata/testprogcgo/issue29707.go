@@ -41,9 +41,10 @@ func callback(unsafe.Pointer) unsafe.Pointer {
 
 func CgoTraceParser() {
 	buf := new(bytes.Buffer)
+
 	trace.Start(buf)
-	defer trace.Stop()
 	C.testCallback(C.cb(C.callback))
+	trace.Stop()
 
 	_, err := traceparser.Parse(buf, "")
 	if err != nil {
