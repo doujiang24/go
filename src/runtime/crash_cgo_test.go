@@ -710,3 +710,11 @@ func TestCgoTracebackGoroutineProfile(t *testing.T) {
 		t.Fatalf("want %s, got %s\n", want, output)
 	}
 }
+
+func TestCgoTraceParser(t *testing.T) {
+	output := runTestProg(t, "testprogcgo", "CgoTraceParser")
+	want := "OK\n"
+	if output != want {
+		t.Fatalf("want %s, got %s\n", want, output)
+	}
+}
