@@ -1926,6 +1926,11 @@ func oneNewExtraM() {
 	if raceenabled {
 		gp.racectx = racegostart(abi.FuncPCABIInternal(newextram) + sys.PCQuantum)
 	}
+	if trace.enabled {
+		traceGoCreate(gp, gp.startpc)
+		gp.traceseq++
+		traceEvent(traceEvGoInSyscall, -1, uint64(gp.goid))
+	}
 	// put on allg for garbage collector
 	allgadd(gp)
 
