@@ -174,7 +174,7 @@ func generateTrace2(params *traceParams, consumer traceConsumer, t *testing.T) e
 
 			fname := stk[0].Fn
 			info.name = fmt.Sprintf("G%v %s", newG, fname)
-			info.isSystemG = isSystemGoroutine(fname)
+			info.isSystemG = isSystemGoroutine(fname) || fname == ""
 
 			ctx.gcount++
 
