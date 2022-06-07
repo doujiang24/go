@@ -35,7 +35,7 @@ func goCmd() string {
 type Event struct {
 	Off   int       // offset in input file (for debugging and error reporting)
 	Type  byte      // one of Ev*
-	seq   int64     // sequence number
+	Seq   int64     // sequence number
 	Ts    int64     // timestamp in nanoseconds
 	P     int       // P on which the event happened (can be one of TimerP, NetpollP, SyscallP)
 	G     uint64    // G on which the event happened
@@ -396,9 +396,9 @@ func parseEvents(ver int, rawEvents []rawEvent, strings map[uint64]string) (even
 			e := &Event{Off: raw.off, Type: raw.typ, P: lastP, G: lastG}
 			var argOffset int
 			if ver < 1007 {
-				e.seq = lastSeq + int64(raw.args[0])
+				e.Seq = lastSeq + int64(raw.args[0])
 				e.Ts = lastTs + int64(raw.args[1])
-				lastSeq = e.seq
+				lastSeq = e.Seq
 				argOffset = 2
 			} else {
 				e.Ts = lastTs + int64(raw.args[0])

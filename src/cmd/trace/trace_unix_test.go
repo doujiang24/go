@@ -150,7 +150,7 @@ func generateTrace2(params *traceParams, consumer traceConsumer, t *testing.T) e
 
 	for _, ev := range ctx.parsed.Events {
 		// Handle state transitions before we filter out events.
-		t.Logf("ev.Type: %v", ev.Type)
+		t.Logf("ev.Type: %v, ev.seq: %v, ev.P: %v, ev.G: %v", ev.Type, ev.Seq, ev.P, ev.G)
 		switch ev.Type {
 		case traceparser.EvGoStart, traceparser.EvGoStartLabel:
 			setGState(ev, ev.G, gRunnable, gRunning)
@@ -188,15 +188,19 @@ func generateTrace2(params *traceParams, consumer traceConsumer, t *testing.T) e
 		case traceparser.EvGoSysExit:
 			setGState(ev, ev.G, gWaiting, gRunnable)
 			if getGInfo(ev.G).isSystemG {
+				t.Logf("-- ctx.threadStats.insyscallRuntime: %v", ctx.threadStats.insyscallRuntime)
 				ctx.threadStats.insyscallRuntime--
 			} else {
+				t.Logf("-- ctx.threadStats.insyscall: %v", ctx.threadStats.insyscall)
 				ctx.threadStats.insyscall--
 			}
 		case traceparser.EvGoSysBlock:
 			setGState(ev, ev.G, gRunning, gWaiting)
 			if getGInfo(ev.G).isSystemG {
+				t.Logf("++ ctx.threadStats.insyscallRuntime: %v", ctx.threadStats.insyscallRuntime)
 				ctx.threadStats.insyscallRuntime++
 			} else {
+				t.Logf("++ ctx.threadStats.insyscall: %v", ctx.threadStats.insyscall)
 				ctx.threadStats.insyscall++
 			}
 		case traceparser.EvGoSched, traceparser.EvGoPreempt:
@@ -217,8 +221,10 @@ func generateTrace2(params *traceParams, consumer traceConsumer, t *testing.T) e
 			// Cancel out the effect of EvGoCreate at the beginning.
 			setGState(ev, ev.G, gRunnable, gWaiting)
 			if getGInfo(ev.G).isSystemG {
+				t.Logf("++ ctx.threadStats.insyscallRuntime: %v", ctx.threadStats.insyscallRuntime)
 				ctx.threadStats.insyscallRuntime++
 			} else {
+				t.Logf("++ ctx.threadStats.insyscall: %v", ctx.threadStats.insyscall)
 				ctx.threadStats.insyscall++
 			}
 		case traceparser.EvHeapAlloc:

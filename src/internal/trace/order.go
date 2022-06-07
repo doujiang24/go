@@ -223,7 +223,7 @@ func order1005(m map[int][]*Event) (events []*Event, err error) {
 		if ev.Type == EvGoSysExit {
 			// EvGoSysExit emission is delayed until the thread has a P.
 			// Give it the real sequence number and time stamp.
-			ev.seq = int64(ev.Args[1])
+			ev.Seq = int64(ev.Args[1])
 			if ev.Args[2] != 0 {
 				ev.Ts = int64(ev.Args[2])
 			}
@@ -271,7 +271,7 @@ func (l eventSeqList) Len() int {
 }
 
 func (l eventSeqList) Less(i, j int) bool {
-	return l[i].seq < l[j].seq
+	return l[i].Seq < l[j].Seq
 }
 
 func (l eventSeqList) Swap(i, j int) {
