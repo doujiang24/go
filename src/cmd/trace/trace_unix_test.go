@@ -95,8 +95,8 @@ func TestGoroutineInSyscall(t *testing.T) {
 		if ev.Name == "Threads" {
 			arg := ev.Arg.(*threadCountersArg)
 			t.Logf("%d threads in syscall at time %v", arg.InSyscall, ev.Time)
-			if arg.InSyscall > 2 {
-				t.Errorf("%d threads in syscall at time %v; want less than 2 thread in syscall", arg.InSyscall, ev.Time)
+			if arg.InSyscall > 1 {
+				t.Errorf("%d threads in syscall at time %v; want less than 1 thread in syscall", arg.InSyscall, ev.Time)
 			}
 		}
 	}
@@ -106,11 +106,11 @@ func TestGoroutineInSyscall(t *testing.T) {
 		endTime: int64(1<<63 - 1),
 	}
 
-	if err := generateTrace2(param, c); err != nil {
+	if err := generateTrace2(param, c, t); err != nil {
 		t.Fatalf("failed to generate ViewerData: %v", err)
 	}
 }
-func generateTrace2(params *traceParams, consumer traceConsumer) error {
+func generateTrace2(params *traceParams, consumer traceConsumer, t *testing.T) error {
 	defer consumer.flush()
 
 	ctx := &traceContext{traceParams: params}
@@ -150,6 +150,7 @@ func generateTrace2(params *traceParams, consumer traceConsumer) error {
 
 	for _, ev := range ctx.parsed.Events {
 		// Handle state transitions before we filter out events.
+		t.Logf("ev.Type: %v", ev.Type)
 		switch ev.Type {
 		case traceparser.EvGoStart, traceparser.EvGoStartLabel:
 			setGState(ev, ev.G, gRunnable, gRunning)
@@ -176,6 +177,8 @@ func generateTrace2(params *traceParams, consumer traceConsumer) error {
 			info.isSystemG = isSystemGoroutine(fname)
 
 			ctx.gcount++
+
+			t.Logf("fname: %v, info.name: %v, info.isSystemG: %v, ctx.gcount: %v", fname, info.name, info.isSystemG, ctx.gcount)
 			setGState(ev, newG, gDead, gRunnable)
 		case traceparser.EvGoEnd:
 			ctx.gcount--
