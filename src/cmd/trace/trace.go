@@ -1136,6 +1136,7 @@ func (ctx *traceContext) buildBranch(parent frameNode, stk []*trace.Frame) int {
 func isSystemGoroutine(entryFn string) bool {
 	// This mimics runtime.isSystemGoroutine as closely as
 	// possible.
+	// Also, locked g in extra M is system goroutine.
 	return entryFn == "" || entryFn != "runtime.main" && strings.HasPrefix(entryFn, "runtime.")
 }
 
