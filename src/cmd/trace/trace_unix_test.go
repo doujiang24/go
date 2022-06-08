@@ -87,8 +87,8 @@ func TestGoroutineInSyscall(t *testing.T) {
 	c.consumeViewerEvent = func(ev *traceviewer.Event, _ bool) {
 		if ev.Name == "Threads" {
 			arg := ev.Arg.(*threadCountersArg)
-			if arg.InSyscall > 2 {
-				t.Errorf("%d threads in syscall at time %v; want less than 2 thread in syscall", arg.InSyscall, ev.Time)
+			if arg.InSyscall > 1 {
+				t.Errorf("%d threads in syscall at time %v; want less than 1 thread in syscall", arg.InSyscall, ev.Time)
 			}
 		}
 	}
