@@ -1136,7 +1136,7 @@ func (ctx *traceContext) buildBranch(parent frameNode, stk []*trace.Frame) int {
 func isSystemGoroutine(entryFn string) bool {
 	// This mimics runtime.isSystemGoroutine as closely as
 	// possible.
-	return entryFn != "runtime.main" && strings.HasPrefix(entryFn, "runtime.")
+	return entryFn == "" || entryFn != "runtime.main" && strings.HasPrefix(entryFn, "runtime.")
 }
 
 // firstTimestamp returns the timestamp of the first event record.
