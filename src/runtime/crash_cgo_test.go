@@ -704,11 +704,6 @@ func TestNeedmDeadlock(t *testing.T) {
 }
 
 func TestCgoTracebackGoroutineProfile(t *testing.T) {
-	// Test issue 29707.
-	switch runtime.GOOS {
-	case "windows", "plan9":
-		t.Skipf("skipping signal mask test on %s", runtime.GOOS)
-	}
 	output := runTestProg(t, "testprogcgo", "GoroutineProfile")
 	want := "OK\n"
 	if output != want {
@@ -717,6 +712,11 @@ func TestCgoTracebackGoroutineProfile(t *testing.T) {
 }
 
 func TestCgoTraceParser(t *testing.T) {
+	// Test issue 29707.
+	switch runtime.GOOS {
+	case "windows", "plan9":
+		t.Skipf("skipping signal mask test on %s", runtime.GOOS)
+	}
 	output := runTestProg(t, "testprogcgo", "CgoTraceParser")
 	want := "OK\n"
 	if output != want {
