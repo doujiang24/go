@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build !plan9 && !windows
+// +build !plan9,!windows
+
 // This is for issue #29707
 
 package main
