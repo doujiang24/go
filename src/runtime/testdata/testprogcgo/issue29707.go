@@ -9,7 +9,7 @@ package main
 /*
 #include <pthread.h>
 
-extern void* callback(void*);
+extern void* callbacktogosleep(void*);
 typedef void* (*cb)(void*);
 
 static void testCallback(cb cb) {
@@ -33,8 +33,8 @@ func init() {
 	register("CgoTraceParser", CgoTraceParser)
 }
 
-//export callback
-func callback(unsafe.Pointer) unsafe.Pointer {
+//export callbacktogosleep
+func callbacktogosleep(unsafe.Pointer) unsafe.Pointer {
 	time.Sleep(time.Millisecond)
 	return nil
 }
@@ -43,7 +43,7 @@ func CgoTraceParser() {
 	buf := new(bytes.Buffer)
 
 	trace.Start(buf)
-	C.testCallback(C.cb(C.callback))
+	C.testCallback(C.cb(C.callbacktogosleep))
 	trace.Stop()
 
 	_, err := traceparser.Parse(buf, "")
