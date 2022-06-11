@@ -1918,7 +1918,7 @@ func oneNewExtraM() {
 		gp.racectx = racegostart(abi.FuncPCABIInternal(newextram) + sys.PCQuantum)
 	}
 	if trace.enabled {
-		traceGoCreate(gp, gp.startpc)
+		traceGoCreate(gp, 0) // no start pc
 		gp.traceseq++
 		traceEvent(traceEvGoInSyscall, -1, uint64(gp.goid))
 	}
