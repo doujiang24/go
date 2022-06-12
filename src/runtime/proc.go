@@ -3615,8 +3615,10 @@ func reentersyscall(pc, sp uintptr) {
 
 	if trace.enabled {
 		if _g_.m.isextra && _g_.m.cgolevel == 0 {
-			systemstack(traceGoEnd)
-			traceProcStop(_g_.m.p.ptr())
+			systemstack(func() {
+				traceGoEnd()
+				traceProcStop(_g_.m.p.ptr())
+			})
 		} else {
 			systemstack(traceGoSysCall)
 		}
@@ -3646,7 +3648,10 @@ func reentersyscall(pc, sp uintptr) {
 
 	if _g_.m.isextra && _g_.m.cgolevel == 0 {
 		atomic.Store(&pp.status, _Pidle)
-		handoffp(pp)
+		systemstack(func() {
+			handoffp(pp)
+		})
+		save(pc, sp)
 	} else {
 		atomic.Store(&pp.status, _Psyscall)
 		if sched.gcwaiting != 0 {
