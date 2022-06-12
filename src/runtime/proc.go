@@ -3851,7 +3851,12 @@ func exitsyscallfast(oldp *p) bool {
 						osyield()
 					}
 				}
-				traceGoSysExit(0)
+				if _g_.m.isextra && _g_.m.cgolevel == 0 {
+					// emit event here, since there is no P in needm.
+					traceGoCreate(_g_, 0) // no start pc for locked g in extra M
+				} else {
+					traceGoSysExit(0)
+				}
 			}
 		})
 		if ok {
