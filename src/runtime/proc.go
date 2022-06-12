@@ -2510,7 +2510,7 @@ func execute(gp *g, inheritTime bool) {
 	}
 
 	if trace.enabled {
-		if _g_.m.isextra && _g_.m.cgolevel == 0 {
+		if gp.m.isextra && gp.m.cgolevel == 0 {
 			// GoCreate happen in needm, but there is no P.
 			// So we emit it here.
 			traceGoCreate(gp, 0) // no start pc for locked g in extra M
