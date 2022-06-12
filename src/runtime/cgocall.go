@@ -242,6 +242,9 @@ func cgocallbackg(fn, frame unsafe.Pointer, ctxt uintptr) {
 	gp.m.incgo = true
 	if gp.m.isextra {
 		gp.m.cgolevel--
+		if gp.m.cgolevel < 0 {
+			throw("unexpected negative cgolevel")
+		}
 	}
 
 	if gp.m != checkm {
