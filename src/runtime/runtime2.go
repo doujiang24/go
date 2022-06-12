@@ -547,6 +547,7 @@ type m struct {
 	printlock     int8
 	incgo         bool   // m is executing a cgo call
 	isextra       bool   // m is an extra m
+	cgolevel      int32  // level of cgo call
 	freeWait      uint32 // if == 0, safe to free g0 and delete m (atomic)
 	fastrand      uint64
 	needextram    bool
