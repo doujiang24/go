@@ -3643,7 +3643,6 @@ func reentersyscall(pc, sp uintptr) {
 	_g_.sysblocktraced = true
 	pp := _g_.m.p.ptr()
 	pp.m = 0
-	_g_.m.oldp.set(pp)
 	_g_.m.p = 0
 
 	if _g_.m.isextra && _g_.m.cgolevel == 0 {
@@ -3653,6 +3652,7 @@ func reentersyscall(pc, sp uintptr) {
 		})
 		save(pc, sp)
 	} else {
+		_g_.m.oldp.set(pp)
 		atomic.Store(&pp.status, _Psyscall)
 		if sched.gcwaiting != 0 {
 			systemstack(entersyscall_gcwait)
