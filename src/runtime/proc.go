@@ -3616,6 +3616,7 @@ func reentersyscall(pc, sp uintptr) {
 	if trace.enabled {
 		if _g_.m.isextra && _g_.m.cgolevel == 0 {
 			systemstack(func() {
+				traceGoSysCall()
 				traceGoEnd()
 				traceProcStop(_g_.m.p.ptr())
 			})
