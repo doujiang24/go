@@ -1913,7 +1913,6 @@ func oneNewExtraM() {
 	mp.lockedg.set(gp)
 	mp.isextra = true
 	gp.lockedm.set(mp)
-	gp.goid = int64(atomic.Xadd64(&sched.goidgen, 1))
 	if raceenabled {
 		gp.racectx = racegostart(abi.FuncPCABIInternal(newextram) + sys.PCQuantum)
 	}
@@ -2510,16 +2509,15 @@ func execute(gp *g, inheritTime bool) {
 	}
 
 	if trace.enabled {
-		if gp.m.isextra && gp.m.cgolevel == 0 {
-			// GoCreate happen in needm, but there is no P.
-			// So we emit it here.
-			traceGoCreate(gp, 0) // no start pc for locked g in extra M
-		} else if gp.syscallsp != 0 && gp.sysblocktraced {
-			// GoSysExit has to happen when we have a P, but before GoStart.
-			// So we emit it here.
-			traceGoSysExit(gp.sysexitticks)
+		// delay emit trace events when first enter go from c
+		if !_g_.m.isextra || _g_.m.cgolevel != 0 {
+			if gp.syscallsp != 0 && gp.sysblocktraced {
+				// GoSysExit has to happen when we have a P, but before GoStart.
+				// So we emit it here.
+				traceGoSysExit(gp.sysexitticks)
+			}
+			traceGoStart()
 		}
-		traceGoStart()
 	}
 
 	gogo(&gp.sched)
@@ -3643,7 +3641,6 @@ func reentersyscall(pc, sp uintptr) {
 	_g_.sysblocktraced = true
 	pp := _g_.m.p.ptr()
 	pp.m = 0
-	_g_.m.oldp.set(pp)
 	_g_.m.p = 0
 
 	if _g_.m.isextra && _g_.m.cgolevel == 0 {
@@ -3653,6 +3650,7 @@ func reentersyscall(pc, sp uintptr) {
 		})
 		save(pc, sp)
 	} else {
+		_g_.m.oldp.set(pp)
 		atomic.Store(&pp.status, _Psyscall)
 		if sched.gcwaiting != 0 {
 			systemstack(entersyscall_gcwait)
@@ -3670,7 +3668,7 @@ func reentersyscall(pc, sp uintptr) {
 //go:nosplit
 //go:linkname entersyscall
 func entersyscall() {
-	reentersyscall(getcallerpc(), getcallersp())
+	reentersyscall(getcallerpc(), getcallersp(), false)
 }
 
 func entersyscall_sysmon() {
@@ -3776,8 +3774,11 @@ func exitsyscall() {
 	_g_.m.oldp = 0
 	if exitsyscallfast(oldp) {
 		if trace.enabled {
-			if oldp != _g_.m.p.ptr() || _g_.m.syscalltick != _g_.m.p.ptr().syscalltick {
-				systemstack(traceGoStart)
+			// delay emit trace events when first enter go from c
+			if !_g_.m.isextra || _g_.m.cgolevel != 0 {
+				if oldp != _g_.m.p.ptr() || _g_.m.syscalltick != _g_.m.p.ptr().syscalltick {
+					systemstack(traceGoStart)
+				}
 			}
 		}
 		// There's a cpu for us, so we can run.
@@ -3866,11 +3867,8 @@ func exitsyscallfast(oldp *p) bool {
 						osyield()
 					}
 				}
-				if _g_.m.isextra && _g_.m.cgolevel == 0 {
-					// GoCreate happen in needm, but there is no P.
-					// So we emit it here.
-					traceGoCreate(_g_, 0) // no start pc for locked g in extra M
-				} else {
+				// delay emit trace events when first enter go from c
+				if !_g_.m.isextra || _g_.m.cgolevel != 0 {
 					traceGoSysExit(0)
 				}
 			}
@@ -3895,11 +3893,8 @@ func exitsyscallfast_reacquired() {
 			// traceGoSysBlock for this syscall was already emitted,
 			// but here we effectively retake the p from the new syscall running on the same p.
 			systemstack(func() {
-				if _g_.m.isextra && _g_.m.cgolevel == 0 {
-					// GoCreate happen in needm, but there is no P.
-					// So we emit it here.
-					traceGoCreate(_g_, 0) // no start pc for locked g in extra M
-				} else {
+				// delay emit trace events when first enter go from c
+				if !_g_.m.isextra || _g_.m.cgolevel != 0 {
 					// Denote blocking of the new syscall.
 					traceGoSysBlock(_g_.m.p.ptr())
 					// Denote completion of the current syscall.
@@ -4097,6 +4092,20 @@ func newproc(fn *funcval) {
 	})
 }
 
+func newgoid(p *p) int64 {
+	if p.goidcache == p.goidcacheend {
+		// Sched.goidgen is the last allocated id,
+		// this batch must be [sched.goidgen+1, sched.goidgen+GoidCacheBatch].
+		// At startup sched.goidgen=0, so main goroutine receives goid=1.
+		p.goidcache = atomic.Xadd64(&sched.goidgen, _GoidCacheBatch)
+		p.goidcache -= _GoidCacheBatch - 1
+		p.goidcacheend = p.goidcache + _GoidCacheBatch
+	}
+	id := int64(p.goidcache)
+	p.goidcache++
+	return id
+}
+
 // Create a new g in state _Grunnable, starting at fn. callerpc is the
 // address of the go statement that created this. The caller is responsible
 // for adding the new g to the scheduler.
@@ -4160,16 +4169,7 @@ func newproc1(fn *funcval, callergp *g, callerpc uintptr) *g {
 	casgstatus(newg, _Gdead, _Grunnable)
 	gcController.addScannableStack(_p_, int64(newg.stack.hi-newg.stack.lo))
 
-	if _p_.goidcache == _p_.goidcacheend {
-		// Sched.goidgen is the last allocated id,
-		// this batch must be [sched.goidgen+1, sched.goidgen+GoidCacheBatch].
-		// At startup sched.goidgen=0, so main goroutine receives goid=1.
-		_p_.goidcache = atomic.Xadd64(&sched.goidgen, _GoidCacheBatch)
-		_p_.goidcache -= _GoidCacheBatch - 1
-		_p_.goidcacheend = _p_.goidcache + _GoidCacheBatch
-	}
-	newg.goid = int64(_p_.goidcache)
-	_p_.goidcache++
+	newg.goid = newgoid(_p_)
 	if raceenabled {
 		newg.racectx = racegostart(callerpc)
 	}
