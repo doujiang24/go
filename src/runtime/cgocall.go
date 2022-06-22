@@ -230,6 +230,7 @@ func cgocallbackg(fn, frame unsafe.Pointer, ctxt uintptr) {
 	exitsyscall() // coming out of cgo call
 
 	if gp.m.isextra && gp.m.cgolevel == 0 {
+		// need a new goid, since the goroutine is reused from dead status.
 		gp.m.curg.goid = newgoid(gp.m.p.ptr())
 
 		if trace.enabled {
