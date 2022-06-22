@@ -3611,8 +3611,11 @@ func reentersyscall(pc, sp uintptr) {
 		})
 	}
 
+	// the goroutine is finished when it's the locked g from extra M,
+	// and it's returning back to c thread.
+	backToCThread := _g_.m.isextra && _g_.m.cgolevel == 0
 	if trace.enabled {
-		if _g_.m.isextra && _g_.m.cgolevel == 0 {
+		if backToCThread {
 			systemstack(func() {
 				traceGoEnd()
 				traceProcStop(_g_.m.p.ptr())
@@ -3643,7 +3646,14 @@ func reentersyscall(pc, sp uintptr) {
 	pp.m = 0
 	_g_.m.p = 0
 
-	if _g_.m.isextra && _g_.m.cgolevel == 0 {
+	if backToCThread {
+		// For a real syscall, we can assume it will back to go in a very short time,
+		// at least in most cases. So, keep the P in _Psyscall may be a better choice.
+		// But in the c to go scene, we can not assume there will be a short time
+		// for the next c to go call, to reuse the oldp in exitsyscall.
+		// And the Psyscall status P can only be retake by sysmon after 20us ~ 10ms,
+		// means wasting P.
+		// So, it's better to handoff the P here.
 		atomic.Store(&pp.status, _Pidle)
 		systemstack(func() {
 			handoffp(pp)
@@ -3668,7 +3678,7 @@ func reentersyscall(pc, sp uintptr) {
 //go:nosplit
 //go:linkname entersyscall
 func entersyscall() {
-	reentersyscall(getcallerpc(), getcallersp(), false)
+	reentersyscall(getcallerpc(), getcallersp())
 }
 
 func entersyscall_sysmon() {

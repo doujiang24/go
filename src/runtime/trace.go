@@ -240,7 +240,7 @@ func StartTrace() error {
 		if status == _Gsyscall {
 			gp.traceseq++
 			traceEvent(traceEvGoInSyscall, -1, uint64(gp.goid))
-		} else if gp.m == nil || !gp.m.isextra {
+		} else {
 			gp.sysblocktraced = false
 		}
 	})
