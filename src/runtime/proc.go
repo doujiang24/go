@@ -3898,7 +3898,7 @@ func exitsyscallfast(oldp *p) bool {
 func exitsyscallfast_reacquired() {
 	_g_ := getg()
 	// there is no oldp when entering go from c thread at the first level.
-	if _g_.m.isextra && _g_.m.cgolevel != 0 {
+	if _g_.m.isextra && _g_.m.cgolevel == 0 {
 		panic("oldp should not existing")
 	}
 	if _g_.m.syscalltick != _g_.m.p.ptr().syscalltick {
