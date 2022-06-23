@@ -2535,7 +2535,7 @@ func execute(gp *g, inheritTime bool) {
 	}
 
 	if trace.enabled {
-		// delay emit trace events when first enter go from c
+		// delay emit trace events when entering go from c thread at the first level.
 		if !_g_.m.isextra || _g_.m.cgolevel != 0 {
 			if gp.syscallsp != 0 && gp.sysblocktraced {
 				// GoSysExit has to happen when we have a P, but before GoStart.
@@ -3666,13 +3666,13 @@ func reentersyscall(pc, sp uintptr) {
 	_g_.m.p = 0
 
 	if backToCThread {
-		// For a real syscall, we can assume it will back to go in a very short time,
-		// at least in most cases. So, keep the P in _Psyscall may be a better choice.
+		// For a real syscall, we assume it will back to go after a very short time,
+		// it's reasonable in most cases. So, keep the P in _Psyscall is a better choice.
 		// But in the c to go scene, we can not assume there will be a short time
 		// for the next c to go call, to reuse the oldp in exitsyscall.
 		// And the Psyscall status P can only be retake by sysmon after 20us ~ 10ms,
-		// means wasting P.
-		// So, it's better to handoff the P here.
+		// it means wasting P.
+		// So, it's better to handoffp here.
 		atomic.Store(&pp.status, _Pidle)
 		systemstack(func() {
 			handoffp(pp)
@@ -3814,7 +3814,7 @@ func exitsyscall() {
 			})
 		}
 		if trace.enabled {
-			// delay emit trace events when first enter go from c
+			// delay emit trace events when entering go from c thread at the first level.
 			if !_g_.m.isextra || _g_.m.cgolevel != 0 {
 				if oldp != _g_.m.p.ptr() || _g_.m.syscalltick != _g_.m.p.ptr().syscalltick {
 					systemstack(traceGoStart)
@@ -3907,7 +3907,7 @@ func exitsyscallfast(oldp *p) bool {
 						osyield()
 					}
 				}
-				// delay emit trace events when first enter go from c
+				// delay emit trace events when entering go from c thread at the first level.
 				if !_g_.m.isextra || _g_.m.cgolevel != 0 {
 					traceGoSysExit(0)
 				}
@@ -3927,19 +3927,20 @@ func exitsyscallfast(oldp *p) bool {
 //go:nosplit
 func exitsyscallfast_reacquired() {
 	_g_ := getg()
+	// there is no oldp when entering go from c thread at the first level.
+	if _g_.m.isextra && _g_.m.cgolevel != 0 {
+		panic("oldp should not existing")
+	}
 	if _g_.m.syscalltick != _g_.m.p.ptr().syscalltick {
 		if trace.enabled {
 			// The p was retaken and then enter into syscall again (since _g_.m.syscalltick has changed).
 			// traceGoSysBlock for this syscall was already emitted,
 			// but here we effectively retake the p from the new syscall running on the same p.
 			systemstack(func() {
-				// delay emit trace events when first enter go from c
-				if !_g_.m.isextra || _g_.m.cgolevel != 0 {
-					// Denote blocking of the new syscall.
-					traceGoSysBlock(_g_.m.p.ptr())
-					// Denote completion of the current syscall.
-					traceGoSysExit(0)
-				}
+				// Denote blocking of the new syscall.
+				traceGoSysBlock(_g_.m.p.ptr())
+				// Denote completion of the current syscall.
+				traceGoSysExit(0)
 			})
 		}
 		_g_.m.p.ptr().syscalltick++

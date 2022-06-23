@@ -547,13 +547,13 @@ type m struct {
 	printlock     int8
 	incgo         bool   // m is executing a cgo call
 	isextra       bool   // m is an extra m
-	cgolevel      int32  // level of cgo(c=>go) calls currently in progress
+	cgolevel      int32  // level of cgo(c to go) calls currently in progress
 	freeWait      uint32 // if == 0, safe to free g0 and delete m (atomic)
 	fastrand      uint64
 	needextram    bool
 	traceback     uint8
-	ncgocall      uint64      // number of cgo(go=>c) calls in total
-	ncgo          int32       // number of cgo(go=>c) calls currently in progress
+	ncgocall      uint64      // number of cgo(go to c) calls in total
+	ncgo          int32       // number of cgo(go to c) calls currently in progress
 	cgoCallersUse uint32      // if non-zero, cgoCallers in use temporarily
 	cgoCallers    *cgoCallers // cgo traceback if crashing in cgo call
 	park          note
