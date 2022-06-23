@@ -232,7 +232,7 @@ func cgocallbackg(fn, frame unsafe.Pointer, ctxt uintptr) {
 		gp.m.curg.goid = newgoid(gp.m.p.ptr())
 
 		if trace.enabled {
-			// delay emit events here, after get P.
+			// delay emit trace events here, after getting a P.
 			systemstack(func() {
 				traceGoCreate(gp, 0) // no start pc for locked g in extra M
 				traceGoStart()
