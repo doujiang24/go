@@ -256,12 +256,17 @@ func StartTrace() error {
 	// World is stopped, no need to lock.
 	forEachGRace(func(gp *g) {
 		status := readgstatus(gp)
-		if status != _Gdead {
+		if status != _Gdead || (gp.m != nil && gp.m.isextra) {
 			gp.traceseq = 0
 			gp.tracelastp = getg().m.p
 			// +PCQuantum because traceFrameForPC expects return PCs and subtracts PCQuantum.
 			id := trace.stackTab.put([]uintptr{startPCforTrace(gp.startpc) + sys.PCQuantum})
 			traceEvent(traceEvGoCreate, -1, uint64(gp.goid), uint64(id), stackID)
+
+			if status == _Gdead {
+				gp.traceseq++
+				traceEvent(traceEvGoInSyscall, -1, uint64(gp.goid))
+			}
 		}
 		if status == _Gwaiting {
 			// traceEvGoWaiting is implied to have seq=1.
@@ -271,7 +276,7 @@ func StartTrace() error {
 		if status == _Gsyscall {
 			gp.traceseq++
 			traceEvent(traceEvGoInSyscall, -1, uint64(gp.goid))
-		} else {
+		} else if gp.m == nil || !gp.m.isextra {
 			gp.sysblocktraced = false
 		}
 	})

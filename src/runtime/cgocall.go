@@ -228,22 +228,7 @@ func cgocallbackg(fn, frame unsafe.Pointer, ctxt uintptr) {
 	savedsp := unsafe.Pointer(gp.syscallsp)
 	savedpc := gp.syscallpc
 	exitsyscall() // coming out of cgo call
-
-	if gp.m.isextra && gp.m.cgolevel == 0 {
-		// need a new goid, since the goroutine is reused from dead status.
-		gp.m.curg.goid = newgoid(gp.m.p.ptr())
-
-		if trace.enabled {
-			// delay emit trace events here, after getting a P.
-			systemstack(func() {
-				traceGoCreate(gp, 0) // no start pc for locked g in extra M
-				traceGoStart()
-			})
-		}
-	}
-
 	gp.m.incgo = false
-	gp.m.cgolevel++
 
 	osPreemptExtExit(gp.m)
 
@@ -253,7 +238,6 @@ func cgocallbackg(fn, frame unsafe.Pointer, ctxt uintptr) {
 	// The following code must not change to a different m.
 	// This is enforced by checking incgo in the schedule function.
 
-	gp.m.cgolevel--
 	gp.m.incgo = true
 
 	if gp.m != checkm {
