@@ -353,5 +353,6 @@ func RelatedGoroutines(events []*Event, goid uint64) map[uint64]bool {
 func IsSystemGoroutine(entryFn string) bool {
 	// This mimics runtime.isSystemGoroutine as closely as
 	// possible.
-	return entryFn != "runtime.main" && strings.HasPrefix(entryFn, "runtime.")
+	// Also, locked g in extra M (with empty entryFn) is system goroutine.
+	return entryFn == "" || entryFn != "runtime.main" && strings.HasPrefix(entryFn, "runtime.")
 }
