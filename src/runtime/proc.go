@@ -2064,6 +2064,8 @@ func oneNewExtraM() {
 // in which dropm happens on each cgo call, is still correct too.
 // We may have to keep the current version on systems with cgo
 // but without pthreads, like Windows.
+//
+//go:nowritebarrierrec
 func dropm() {
 	// Clear m and g, and return m to the extra list.
 	// After the call to setg we can only call nosplit functions
