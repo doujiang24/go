@@ -56,6 +56,8 @@ extern void (*_cgo_sys_thread_create)(void* (*func)(void*), void* arg);
  */
 extern uintptr_t *_cgo_pthread_key_created;
 
+extern void crosscall2(void (*fn)(void *), void *, int, size_t);
+
 /*
  * Puts the current extra m back onto the extra list.
  */
