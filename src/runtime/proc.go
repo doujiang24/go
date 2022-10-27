@@ -2064,6 +2064,8 @@ func oneNewExtraM() {
 // So that the destructor would invoke dropm while the non-Go thread is exiting.
 // This is much faster since it avoids expensive signal-related syscalls.
 //
+// NOTE: this always runs without a P, so, nowritebarrierrec required.
+//
 //go:nowritebarrierrec
 func dropm() {
 	// Clear m and g, and return m to the extra list.
