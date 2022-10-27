@@ -56,6 +56,10 @@ extern void (*_cgo_sys_thread_create)(void* (*func)(void*), void* arg);
  */
 extern uintptr_t *_cgo_pthread_key_created;
 
+/*
+ * Call go function fn from C.
+ * Only dropm when fn is NULL.
+ */
 extern void crosscall2(void (*fn)(void *), void *, int, size_t);
 
 /*
