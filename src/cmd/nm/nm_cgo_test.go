@@ -8,7 +8,6 @@ package main
 
 import (
 	"runtime"
-	"testing"
 )
 
 func canInternalLink() bool {
@@ -41,6 +40,7 @@ func canInternalLink() bool {
 	return true
 }
 
+/*
 func TestInternalLinkerCgoExec(t *testing.T) {
 	if !canInternalLink() {
 		t.Skip("skipping; internal linking is not supported")
@@ -55,3 +55,4 @@ func TestExternalLinkerCgoExec(t *testing.T) {
 func TestCgoLib(t *testing.T) {
 	testGoLib(t, true)
 }
+*/
