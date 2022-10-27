@@ -228,6 +228,9 @@ func noescape(p unsafe.Pointer) unsafe.Pointer {
 // cgocallback is not called from Go, only from crosscall2.
 // This in turn calls cgocallbackg, which is where we'll find
 // pointer-declared arguments.
+//
+// Will skip cgocallbackg, when fn is nil.
+// It is used to dropm while thread is exiting.
 func cgocallback(fn, frame, ctxt uintptr)
 
 func gogo(buf *gobuf)
