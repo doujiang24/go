@@ -663,36 +663,38 @@ func (t *tester) registerTests() {
 		})
 	}
 
-	// Test that internal linking of standard packages does not
-	// require libgcc. This ensures that we can install a Go
-	// release on a system that does not have a C compiler
-	// installed and still build Go programs (that don't use cgo).
-	for _, pkg := range cgoPackages {
-		if !t.internalLink() {
-			break
-		}
+	/*
+		// Test that internal linking of standard packages does not
+		// require libgcc. This ensures that we can install a Go
+		// release on a system that does not have a C compiler
+		// installed and still build Go programs (that don't use cgo).
+		for _, pkg := range cgoPackages {
+			if !t.internalLink() {
+				break
+			}
 
-		// ARM libgcc may be Thumb, which internal linking does not support.
-		if goarch == "arm" {
-			break
-		}
+			// ARM libgcc may be Thumb, which internal linking does not support.
+			if goarch == "arm" {
+				break
+			}
 
-		pkg := pkg
-		var run string
-		if pkg == "net" {
-			run = "TestTCPStress"
+			pkg := pkg
+			var run string
+			if pkg == "net" {
+				run = "TestTCPStress"
+			}
+			t.tests = append(t.tests, distTest{
+				name:    "nolibgcc:" + pkg,
+				heading: "Testing without libgcc.",
+				fn: func(dt *distTest) error {
+					// What matters is that the tests build and start up.
+					// Skip expensive tests, especially x509 TestSystemRoots.
+					t.addCmd(dt, "src", t.goTest(), "-ldflags=-linkmode=internal -libgcc=none", "-run=^Test[^CS]", pkg, t.runFlag(run))
+					return nil
+				},
+			})
 		}
-		t.tests = append(t.tests, distTest{
-			name:    "nolibgcc:" + pkg,
-			heading: "Testing without libgcc.",
-			fn: func(dt *distTest) error {
-				// What matters is that the tests build and start up.
-				// Skip expensive tests, especially x509 TestSystemRoots.
-				t.addCmd(dt, "src", t.goTest(), "-ldflags=-linkmode=internal -libgcc=none", "-run=^Test[^CS]", pkg, t.runFlag(run))
-				return nil
-			},
-		})
-	}
+	*/
 
 	// Stub out following test on alpine until 54354 resolved.
 	builderName := os.Getenv("GO_BUILDER_NAME")
