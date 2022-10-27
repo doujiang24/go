@@ -664,65 +664,65 @@ func (t *tester) registerTests() {
 	}
 
 	/*
-		// Test that internal linking of standard packages does not
-		// require libgcc. This ensures that we can install a Go
-		// release on a system that does not have a C compiler
-		// installed and still build Go programs (that don't use cgo).
-		for _, pkg := range cgoPackages {
-			if !t.internalLink() {
-				break
+			// Test that internal linking of standard packages does not
+			// require libgcc. This ensures that we can install a Go
+			// release on a system that does not have a C compiler
+			// installed and still build Go programs (that don't use cgo).
+			for _, pkg := range cgoPackages {
+				if !t.internalLink() {
+					break
+				}
+
+				// ARM libgcc may be Thumb, which internal linking does not support.
+				if goarch == "arm" {
+					break
+				}
+
+				pkg := pkg
+				var run string
+				if pkg == "net" {
+					run = "TestTCPStress"
+				}
+				t.tests = append(t.tests, distTest{
+					name:    "nolibgcc:" + pkg,
+					heading: "Testing without libgcc.",
+					fn: func(dt *distTest) error {
+						// What matters is that the tests build and start up.
+						// Skip expensive tests, especially x509 TestSystemRoots.
+						t.addCmd(dt, "src", t.goTest(), "-ldflags=-linkmode=internal -libgcc=none", "-run=^Test[^CS]", pkg, t.runFlag(run))
+						return nil
+					},
+				})
 			}
 
-			// ARM libgcc may be Thumb, which internal linking does not support.
-			if goarch == "arm" {
-				break
-			}
+		// Stub out following test on alpine until 54354 resolved.
+		builderName := os.Getenv("GO_BUILDER_NAME")
+		disablePIE := strings.HasSuffix(builderName, "-alpine")
 
-			pkg := pkg
-			var run string
-			if pkg == "net" {
-				run = "TestTCPStress"
-			}
+		// Test internal linking of PIE binaries where it is supported.
+		if t.internalLinkPIE() && !disablePIE {
 			t.tests = append(t.tests, distTest{
-				name:    "nolibgcc:" + pkg,
-				heading: "Testing without libgcc.",
-				fn: func(dt *distTest) error {
-					// What matters is that the tests build and start up.
-					// Skip expensive tests, especially x509 TestSystemRoots.
-					t.addCmd(dt, "src", t.goTest(), "-ldflags=-linkmode=internal -libgcc=none", "-run=^Test[^CS]", pkg, t.runFlag(run))
-					return nil
-				},
-			})
-		}
-	*/
-
-	// Stub out following test on alpine until 54354 resolved.
-	builderName := os.Getenv("GO_BUILDER_NAME")
-	disablePIE := strings.HasSuffix(builderName, "-alpine")
-
-	// Test internal linking of PIE binaries where it is supported.
-	if t.internalLinkPIE() && !disablePIE {
-		t.tests = append(t.tests, distTest{
-			name:    "pie_internal",
-			heading: "internal linking of -buildmode=pie",
-			fn: func(dt *distTest) error {
-				cmd := t.addCmd(dt, "src", t.goTest(), "reflect", "-buildmode=pie", "-ldflags=-linkmode=internal", t.timeout(60))
-				setEnv(cmd, "CGO_ENABLED", "0")
-				return nil
-			},
-		})
-		// Also test a cgo package.
-		if t.cgoEnabled && t.internalLink() && !disablePIE {
-			t.tests = append(t.tests, distTest{
-				name:    "pie_internal_cgo",
+				name:    "pie_internal",
 				heading: "internal linking of -buildmode=pie",
 				fn: func(dt *distTest) error {
-					t.addCmd(dt, "src", t.goTest(), "os/user", "-buildmode=pie", "-ldflags=-linkmode=internal", t.timeout(60))
+					cmd := t.addCmd(dt, "src", t.goTest(), "reflect", "-buildmode=pie", "-ldflags=-linkmode=internal", t.timeout(60))
+					setEnv(cmd, "CGO_ENABLED", "0")
 					return nil
 				},
 			})
+			// Also test a cgo package.
+			if t.cgoEnabled && t.internalLink() && !disablePIE {
+				t.tests = append(t.tests, distTest{
+					name:    "pie_internal_cgo",
+					heading: "internal linking of -buildmode=pie",
+					fn: func(dt *distTest) error {
+						t.addCmd(dt, "src", t.goTest(), "os/user", "-buildmode=pie", "-ldflags=-linkmode=internal", t.timeout(60))
+						return nil
+					},
+				})
+			}
 		}
-	}
+	*/
 
 	// sync tests
 	if goos != "js" { // js doesn't support -cpu=10
