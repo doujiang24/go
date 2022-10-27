@@ -239,8 +239,6 @@ func asminit()
 func setg(gg *g)
 func breakpoint()
 
-func cgodropm()
-
 // reflectcall calls fn with arguments described by stackArgs, stackArgsSize,
 // frameSize, and regArgs.
 //
