@@ -1954,6 +1954,11 @@ func needm() {
 	gp.stack.lo = getcallersp() - 32*1024
 	gp.stackguard0 = gp.stack.lo + _StackGuard
 
+	// Should mark we are already in Go now.
+	// Otherwise, we may call needm again when we get a signal, before cgocallbackg1,
+	// which means the extram list may be empty, that will cause a deadlock.
+	mp.isExtraInC = false
+
 	// Initialize this thread to use the m.
 	asminit()
 	minit()
@@ -2007,8 +2012,8 @@ func oneNewExtraM() {
 	gp.m = mp
 	mp.curg = gp
 	mp.isextra = true
-	// During a call to needm we could get a signal which would itself call needm,
-	// that will cause a deadlock, so we keep isExtraInC false, as default.
+	// mark we are in C by default.
+	mp.isExtraInC = true
 	mp.lockedInt++
 	mp.lockedg.set(gp)
 	gp.lockedm.set(mp)
@@ -2072,10 +2077,6 @@ func dropm() {
 	// After the call to setg we can only call nosplit functions
 	// with no pointer manipulation.
 	mp := getg().m
-
-	// During a call to needm we could get a signal which would itself call needm,
-	// that will cause a deadlock, so we set isExtraInC to false.
-	mp.isExtraInC = false
 
 	// Return mp.curg to dead state.
 	casgstatus(mp.curg, _Gsyscall, _Gdead)
