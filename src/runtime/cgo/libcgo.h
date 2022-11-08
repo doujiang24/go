@@ -68,6 +68,8 @@ void _cgo_sys_thread_start(ThreadStart *ts);
  */
 uintptr_t _cgo_wait_runtime_init_done(void);
 
+extern void crosscall2(void (*fn)(void *), void *, int, size_t);
+
 /*
  * Call fn in the 6c world.
  */
