@@ -13,7 +13,8 @@ import (
 // compiled with gcc via crosscall2.
 
 // The declaration of crosscall2 is:
-//   void crosscall2(void (*fn)(void *), void *, int);
+//
+//	void crosscall2(void (*fn)(void *), void *, int);
 //
 // We need to export the symbol crosscall2 in order to support
 // callbacks from shared libraries. This applies regardless of
@@ -27,6 +28,8 @@ import (
 //
 //go:cgo_export_static crosscall2
 //go:cgo_export_dynamic crosscall2
+//go:linkname crosscall2 crosscall2
+func crosscall2()
 
 // Panic. The argument is converted into a Go string.
 
@@ -90,7 +93,7 @@ var _cgo_pthread_key_created = &x_cgo_pthread_key_created
 
 //go:cgo_import_static x_cgo_crosscall
 //go:linkname x_cgo_crosscall x_cgo_crosscall
-var x_cgo_crosscall = abi.FuncPCABI0(cgo_crosscall)
+var x_cgo_crosscall = abi.FuncPCABI0(crosscall2)
 
 // cgo_crosscall simply jmp to crosscall2.
 
