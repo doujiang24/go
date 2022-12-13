@@ -2568,8 +2568,9 @@ func (b *Builder) gccld(a *Action, p *load.Package, objdir, outfile string, flag
 			save = append(save, line)
 		}
 		out = bytes.Join(save, nil)
-		if len(out) > 0 && (cfg.BuildN || cfg.BuildX) {
+		if len(out) > 0 && (cfg.BuildN || cfg.BuildX || true) {
 			b.showOutput(nil, dir, p.ImportPath, b.processOutput(out))
+			b.showOutput(nil, dir, p.ImportPath, fmt.Sprintf("%v", cmdargs))
 		}
 	}
 	return err

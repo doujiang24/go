@@ -91,7 +91,8 @@ func testGoExec(t *testing.T, iscgo, isexternallinker bool) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tmpdir)
+	t.Logf("tmp dir: %v", tmpdir)
+	//defer os.RemoveAll(tmpdir)
 
 	src := filepath.Join(tmpdir, "a.go")
 	file, err := os.Create(src)
@@ -116,6 +117,7 @@ func testGoExec(t *testing.T, iscgo, isexternallinker bool) {
 		args = append(args, "-ldflags", "-linkmode="+linkmode)
 	}
 	args = append(args, src)
+	t.Logf("cmd: %v", args)
 	out, err := exec.Command(testenv.GoToolPath(t), args...).CombinedOutput()
 	if err != nil {
 		t.Fatalf("building test executable failed: %s %s", err, out)
