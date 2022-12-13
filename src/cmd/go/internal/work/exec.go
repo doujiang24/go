@@ -2922,6 +2922,7 @@ func (b *Builder) cgo(a *Action, cgoExe, objdir string, pcCFLAGS, pcLDFLAGS, cgo
 	cgoflags := []string{}
 	if p.Standard && p.ImportPath == "runtime/cgo" {
 		cgoflags = append(cgoflags, "-import_runtime_cgo=false")
+		cgoLDFLAGS = append(cgoLDFLAGS, "-Wl,--unresolved-symbols=ignore-in-object-files")
 	}
 	if p.Standard && (p.ImportPath == "runtime/race" || p.ImportPath == "runtime/msan" || p.ImportPath == "runtime/cgo" || p.ImportPath == "runtime/asan") {
 		cgoflags = append(cgoflags, "-import_syscall=false")
