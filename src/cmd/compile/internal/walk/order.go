@@ -363,6 +363,10 @@ func (o *orderState) stmtList(l ir.Nodes) {
 	s := l
 	for i := range s {
 		orderMakeSliceCopy(s[i:])
+		n := s[i]
+		if n != nil {
+			base.Warn("order.stmtList: %v", n.Op())
+		}
 		o.stmt(s[i])
 	}
 }
