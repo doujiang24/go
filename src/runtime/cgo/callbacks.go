@@ -4,7 +4,9 @@
 
 package cgo
 
-import "unsafe"
+import (
+	"unsafe"
+)
 
 // These utility functions are available to be called from code
 // compiled with gcc via crosscall2.
@@ -81,6 +83,15 @@ var _cgo_sys_thread_create = &x_cgo_sys_thread_create
 //go:linkname _cgo_pthread_key_created _cgo_pthread_key_created
 var x_cgo_pthread_key_created byte
 var _cgo_pthread_key_created = &x_cgo_pthread_key_created
+
+// Export crosscall2 to a c variable.
+// Used to dropm in pthread_key_destructor, while c thread is exiting.
+
+//go:cgo_import_static x_crosscall2
+//go:linkname x_crosscall2 x_crosscall2
+//go:linkname _crosscall2 _crosscall2
+var x_crosscall2 byte
+var _crosscall2 = &x_crosscall2
 
 // Notifies that the runtime has been initialized.
 //

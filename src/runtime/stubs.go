@@ -232,6 +232,9 @@ func noescape(p unsafe.Pointer) unsafe.Pointer {
 // When fn is nil, call dropm instead. This is used when the C thread is exiting.
 func cgocallback(fn, frame, ctxt uintptr)
 
+// Set the crosscall2 function address to a C variable.
+func setcrosscall2()
+
 func gogo(buf *gobuf)
 
 func asminit()

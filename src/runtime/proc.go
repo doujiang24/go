@@ -228,6 +228,7 @@ func main() {
 		if _cgo_notify_runtime_init_done == nil {
 			throw("_cgo_notify_runtime_init_done missing")
 		}
+		setcrosscall2()
 		// Start the template thread in case we enter Go from
 		// a C-created thread and need to create a new thread.
 		startTemplateThread()
