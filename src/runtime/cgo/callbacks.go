@@ -93,10 +93,10 @@ var _cgo_pthread_key_created = &x_cgo_pthread_key_created
 var x_crosscall2 byte
 var _crosscall2 = &x_crosscall2
 
-func get_crosscall2() uintptr
+func set_crosscall2()
 
-//go:linkname _get_crosscall2 runtime.get_crosscall2
-var _get_crosscall2 = get_crosscall2
+//go:linkname _set_crosscall2 runtime.set_crosscall2
+var _set_crosscall2 = set_crosscall2
 
 // Notifies that the runtime has been initialized.
 //
