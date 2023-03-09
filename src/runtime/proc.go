@@ -228,7 +228,13 @@ func main() {
 		if _cgo_notify_runtime_init_done == nil {
 			throw("_cgo_notify_runtime_init_done missing")
 		}
-		setcrosscall2()
+		addr := get_crosscall2()
+		print("_crosscall2: ", _crosscall2, "\n")
+		x_crosscall2 := *(*uintptr)(_crosscall2)
+		print("x_crosscall2: ", x_crosscall2, "\n")
+		*(*uintptr)(_crosscall2) = addr
+		// *(*uintptr)(unsafe.Pointer(x_crosscall2)) = addr
+		print("crosscall2: ", addr, "\n")
 		// Start the template thread in case we enter Go from
 		// a C-created thread and need to create a new thread.
 		startTemplateThread()

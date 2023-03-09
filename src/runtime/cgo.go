@@ -35,6 +35,15 @@ var (
 // iscgo is set to true by the runtime/cgo package
 var iscgo bool
 
+var get_crosscall2 func() uintptr
+
+/*
+{
+	throw("get_crosscall2 should not be called")
+	return 0
+}
+*/
+
 // cgoHasExtraM is set on startup when an extra M is created for cgo.
 // The extra M must be created before any C/C++ code calls cgocallback.
 var cgoHasExtraM bool

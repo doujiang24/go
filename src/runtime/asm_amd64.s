@@ -889,19 +889,6 @@ nosave:
 GLOBL zeroTLS<>(SB),RODATA,$const_tlsSize
 #endif
 
-// It is a "weak symbol" of the real crosscall2 in the runtime/cgo package.
-// When cgo is not used, we'll use this function; when cgo is used, we'll use the real one.
-TEXT crosscall2(SB),NOSPLIT|DUPOK,$0-0
-	UNDEF	// should never be called
-
-// Set x_crosscall2 point to crosscall2.
-// It's such a pointer chain: _crosscall2 -> x_crosscall2 -> crosscall2
-TEXT ·setcrosscall2(SB),NOSPLIT,$0-0
-	MOVQ	_crosscall2(SB), AX
-	MOVQ	$crosscall2(SB), BX
-	MOVQ	BX, (AX)
-	RET
-
 // func cgocallback(fn, frame unsafe.Pointer, ctxt uintptr)
 // See cgocall.go for more details.
 TEXT ·cgocallback(SB),NOSPLIT,$24-24
