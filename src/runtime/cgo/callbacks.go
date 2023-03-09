@@ -93,6 +93,7 @@ var _cgo_pthread_key_created = &x_cgo_pthread_key_created
 var x_crosscall2 byte
 var _crosscall2 = &x_crosscall2
 
+// Set the x_crosscall2 function pointer variable in C point to crosscall2.
 func set_crosscall2()
 
 //go:linkname _set_crosscall2 runtime.set_crosscall2

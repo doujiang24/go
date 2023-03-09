@@ -1001,7 +1001,6 @@ havem:
 	MOVQ	BX, 0(SP)
 	MOVQ	CX, 8(SP)
 	MOVQ	DX, 16(SP)
-	MOVQ	$crosscall2(SB), AX
 	MOVQ	$runtime·cgocallbackg(SB), AX
 	CALL	AX	// indirect call to bypass nosplit check. We're on a different stack now.
 
