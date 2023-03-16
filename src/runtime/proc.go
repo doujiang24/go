@@ -233,7 +233,10 @@ func main() {
 		if set_crosscall2 == nil {
 			throw("set_crosscall2 missing")
 		}
-		set_crosscall2()
+		// temporarily hack for aix: disable dropm in pthread key destructor.
+		if GOOS != "aix" {
+			set_crosscall2()
+		}
 
 		// Start the template thread in case we enter Go from
 		// a C-created thread and need to create a new thread.
