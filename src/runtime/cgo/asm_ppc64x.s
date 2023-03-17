@@ -61,6 +61,7 @@ TEXT crosscall2(SB),NOSPLIT|NOFRAME,$0
 	// ppc64 use elf ABI v1. we must get the real entry address from
 	// first slot of the function descriptor before call.
 	// Same for AIX.
+	// The first argument fn might be null, that means dropm in pthread key destructor.
 	CMP	R3, $0
 	BEQ	nullptr
 	MOVD	8(R3), R2
