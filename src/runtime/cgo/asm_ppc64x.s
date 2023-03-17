@@ -61,8 +61,11 @@ TEXT crosscall2(SB),NOSPLIT|NOFRAME,$0
 	// ppc64 use elf ABI v1. we must get the real entry address from
 	// first slot of the function descriptor before call.
 	// Same for AIX.
+	CMP	R3, $0
+	BEQ	nullptr
 	MOVD	8(R3), R2
 	MOVD	(R3), R3
+nullptr:
 #endif
 	MOVD	R3, FIXED_FRAME+0(R1)	// fn unsafe.Pointer
 	MOVD	R4, FIXED_FRAME+8(R1)	// a unsafe.Pointer
