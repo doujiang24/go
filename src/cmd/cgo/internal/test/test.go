@@ -118,9 +118,20 @@ int add(int x, int y) {
 // escape vs noescape
 
 #cgo noescape handleGoStringPointerNoescape
-void handleGoStringPointerNoescape(void *s) {}
+// void handleGoStringPointerNoescape(void *s1, void *s2, void *s3, void *s4, void *s5) {}
+void handleGoStringPointerNoescape(void *s1) {}
 
-void handleGoStringPointerEscape(void *s) {}
+// void handleGoStringPointerEscape(void *s1, void *s2, void *s3, void *s4, void *s5) {}
+void handleGoStringPointerEscape(void *s1) {}
+
+#cgo noescape handleGoStringDataPointerNoescape
+// void handleGoStringDataPointerNoescape(void *s1, int len1, void *s2, int len2, void *s3, int len3, void *s4, int len4, void *s5, int len5) {}
+void handleGoStringDataPointerNoescape(void *s1, int len1) {}
+
+#cgo noescape writeGoStringDataLenNoescape
+void writeGoStringDataLenNoescape(unsigned long long *data, int *len) {}
+
+void writeGoStringDataLenEscape(unsigned long long *data, int *len) {}
 
 // Following mimics vulkan complex definitions for benchmarking cgocheck overhead.
 
@@ -932,6 +943,8 @@ typedef struct issue45451Undefined issue45451;
 extern void GoFunc49633(void*);
 void cfunc49633(void *context) { GoFunc49633(context); }
 
+void passGoStrings(void *data, int len) { }
+void passGoStringsWithCopy(const char* strings[], int length) {}
 */
 import "C"
 
@@ -945,6 +958,7 @@ import (
 	"reflect"
 	"runtime"
 	"runtime/cgo"
+	"strconv"
 	"sync"
 	"syscall"
 	"testing"
@@ -1098,57 +1112,134 @@ type Context struct {
 }
 
 func benchCgoCall(b *testing.B) {
-	b.Run("add-int", func(b *testing.B) {
-		const x = C.int(2)
-		const y = C.int(3)
-
-		for i := 0; i < b.N; i++ {
-			C.add(x, y)
-		}
-	})
-
-	b.Run("one-pointer", func(b *testing.B) {
-		var a0 C.VkDeviceCreateInfo
-		for i := 0; i < b.N; i++ {
-			C.handleComplexPointer(&a0)
-		}
-	})
 	b.Run("string-pointer-escape", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			var s string
-			C.handleGoStringPointerEscape(unsafe.Pointer(&s))
+			s1 := "f1"
+			/*
+				s2 := "f2"
+				s3 := "f3"
+				s4 := "f4"
+				s5 := "f5"
+			*/
+			// C.handleGoStringPointerEscape(unsafe.Pointer(&s1), unsafe.Pointer(&s2), unsafe.Pointer(&s3), unsafe.Pointer(&s4), unsafe.Pointer(&s5))
+			C.handleGoStringPointerEscape(unsafe.Pointer(&s1))
 		}
 	})
 	b.Run("string-pointer-noescape", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			var s string
-			C.handleGoStringPointerNoescape(unsafe.Pointer(&s))
+			s1 := "f1"
+			/*
+				s2 := "f2"
+				s3 := "f3"
+				s4 := "f4"
+				s5 := "f5"
+			*/
+			// C.handleGoStringPointerNoescape(unsafe.Pointer(&s1), unsafe.Pointer(&s2), unsafe.Pointer(&s3), unsafe.Pointer(&s4), unsafe.Pointer(&s5))
+			C.handleGoStringPointerNoescape(unsafe.Pointer(&s1))
 		}
 	})
-	b.Run("eight-pointers", func(b *testing.B) {
-		var a0, a1, a2, a3, a4, a5, a6, a7 C.VkDeviceCreateInfo
+	b.Run("string-data-pointer-noescape", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			C.handleComplexPointer8(&a0, &a1, &a2, &a3, &a4, &a5, &a6, &a7)
+			s1 := "f1"
+			/*
+				s2 := "f2"
+				s3 := "f3"
+				s4 := "f4"
+				s5 := "f5"
+			*/
+			// C.handleGoStringDataPointerNoescape(unsafe.Pointer(unsafe.StringData(s1)), C.int(len(s1)), unsafe.Pointer(unsafe.StringData(s2)), C.int(len(s2)), unsafe.Pointer(unsafe.StringData(s3)), C.int(len(s3)), unsafe.Pointer(unsafe.StringData(s4)), C.int(len(s4)), unsafe.Pointer(unsafe.StringData(s5)), C.int(len(s5)))
+			C.handleGoStringDataPointerNoescape(unsafe.Pointer(unsafe.StringData(s1)), C.int(len(s1)))
 		}
 	})
-	b.Run("eight-pointers-nil", func(b *testing.B) {
-		var a0, a1, a2, a3, a4, a5, a6, a7 *C.VkDeviceCreateInfo
+	b.Run("write-string-noescape", func(b *testing.B) {
+		var str string
 		for i := 0; i < b.N; i++ {
-			C.handleComplexPointer8(a0, a1, a2, a3, a4, a5, a6, a7)
+			var s1 string
+			C.handleGoStringPointerNoescape(unsafe.Pointer(&s1))
+			str = s1
 		}
+		fmt.Printf("str: %s\n", str)
 	})
-	b.Run("eight-pointers-array", func(b *testing.B) {
-		var a [8]C.VkDeviceCreateInfo
+	b.Run("write-string-data-len-pointer-noescape", func(b *testing.B) {
+		var str string
 		for i := 0; i < b.N; i++ {
-			C.handleComplexPointer8(&a[0], &a[1], &a[2], &a[3], &a[4], &a[5], &a[6], &a[7])
+			var data C.ulonglong
+			var len C.int
+			C.writeGoStringDataLenNoescape(&data, &len)
+			str = unsafe.String((*byte)(unsafe.Pointer(uintptr(data))), int(len))
 		}
+		fmt.Printf("str: %s\n", str)
 	})
-	b.Run("eight-pointers-slice", func(b *testing.B) {
-		a := make([]C.VkDeviceCreateInfo, 8)
+	b.Run("write-string-data-len-pointer-escape", func(b *testing.B) {
+		var str string
 		for i := 0; i < b.N; i++ {
-			C.handleComplexPointer8(&a[0], &a[1], &a[2], &a[3], &a[4], &a[5], &a[6], &a[7])
+			var data C.ulonglong
+			var len C.int
+			C.writeGoStringDataLenEscape(&data, &len)
+			str = unsafe.String((*byte)(unsafe.Pointer(uintptr(data))), int(len))
+		}
+		fmt.Printf("str: %s\n", str)
+	})
+	b.Run("pass-go-string-map-to-c", func(b *testing.B) {
+		m := make(map[string]string, 10)
+		for i := 1; i <= 5; i++ {
+			m["foo"+strconv.Itoa(i)] = "bar" + strconv.Itoa(i)
+		}
+		for i := 0; i < b.N; i++ {
+			passGoStringMapToC(m)
 		}
 	})
+	b.Run("pass-go-string-map-to-c-without-pinner", func(b *testing.B) {
+		m := make(map[string]string, 10)
+		for i := 1; i <= 5; i++ {
+			m["foo"+strconv.Itoa(i)] = "bar" + strconv.Itoa(i)
+		}
+		for i := 0; i < b.N; i++ {
+			passGoStringMapToCWithoutPinner(m)
+		}
+	})
+	b.Run("pass-go-string-map-to-c-with-copy", func(b *testing.B) {
+		m := make(map[string]string, 10)
+		for i := 1; i <= 5; i++ {
+			m["foo"+strconv.Itoa(i)] = "bar" + strconv.Itoa(i)
+		}
+		for i := 0; i < b.N; i++ {
+			passGoStringMapToCWithCopy(m)
+		}
+	})
+}
+
+func passGoStringMapToC(m map[string]string) {
+	s := make([]string, 0, len(m)*2)
+	var pinner runtime.Pinner
+	defer pinner.Unpin()
+	for k, v := range m {
+		s = append(s, k, v)
+		pinner.Pin(unsafe.StringData(k))
+		pinner.Pin(unsafe.StringData(v))
+	}
+	C.passGoStrings(unsafe.Pointer(unsafe.SliceData(s)), C.int(len(s)))
+}
+
+func passGoStringMapToCWithoutPinner(m map[string]string) {
+	s := make([]string, 0, len(m)*2)
+	for k, v := range m {
+		s = append(s, k, v)
+	}
+	C.passGoStrings(unsafe.Pointer(unsafe.SliceData(s)), C.int(len(s)))
+}
+
+func passGoStringMapToCWithCopy(m map[string]string) {
+	s := make([]*C.char, 0, len(m)*2)
+	for k, v := range m {
+		keyStr := C.CString(k)
+		valueStr := C.CString(v)
+		s = append(s, keyStr, valueStr)
+	}
+	C.passGoStringsWithCopy(unsafe.SliceData(s), C.int(len(s)))
+	for _, v := range s {
+		C.free(unsafe.Pointer(v))
+	}
 }
 
 // Benchmark measuring overhead from Go to C and back to Go (via a callback)

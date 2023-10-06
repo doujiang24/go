@@ -952,6 +952,7 @@ func (p *Package) rewriteCall(f *File, call *Call) (string, bool) {
 		// Use "var x T = ..." syntax to explicitly convert untyped
 		// constants to the parameter type, to avoid a type mismatch.
 		ptype := p.rewriteUnsafe(param.Go)
+		fmt.Printf("param.Go: %v\n", param.Go)
 
 		if !p.needsPointerCheck(f, param.Go, args[i]) || param.BadPointer || p.checkUnsafeStringData(args[i]) {
 			if ptype != param.Go {
@@ -1022,6 +1023,7 @@ func (p *Package) rewriteCall(f *File, call *Call) (string, bool) {
 // This is true if t is a pointer and if the value to which it points
 // might contain a pointer.
 func (p *Package) needsPointerCheck(f *File, t ast.Expr, arg ast.Expr) bool {
+	fmt.Printf("t: %v, arg: %v\n", t, arg)
 	// An untyped nil does not need a pointer check, and when
 	// _cgoCheckPointer returns the untyped nil the type assertion we
 	// are going to insert will fail.  Easier to just skip nil arguments.
@@ -1038,8 +1040,10 @@ func (p *Package) needsPointerCheck(f *File, t ast.Expr, arg ast.Expr) bool {
 // If top is false it reports whether t is or contains a pointer.
 // f may be nil.
 func (p *Package) hasPointer(f *File, t ast.Expr, top bool) bool {
+	fmt.Printf("hasPointer, t: %v, top: %v\n", t, top)
 	switch t := t.(type) {
 	case *ast.ArrayType:
+		fmt.Printf("arrayType\n")
 		if t.Len == nil {
 			if !top {
 				return true
@@ -1048,6 +1052,7 @@ func (p *Package) hasPointer(f *File, t ast.Expr, top bool) bool {
 		}
 		return p.hasPointer(f, t.Elt, top)
 	case *ast.StructType:
+		fmt.Printf("structType\n")
 		for _, field := range t.Fields.List {
 			if p.hasPointer(f, field.Type, top) {
 				return true
@@ -1055,6 +1060,7 @@ func (p *Package) hasPointer(f *File, t ast.Expr, top bool) bool {
 		}
 		return false
 	case *ast.StarExpr: // Pointer type.
+		fmt.Printf("StarExpr, t: %v, t.X: %v\n", t, t.X)
 		if !top {
 			return true
 		}
@@ -1065,8 +1071,10 @@ func (p *Package) hasPointer(f *File, t ast.Expr, top bool) bool {
 		}
 		return p.hasPointer(f, t.X, false)
 	case *ast.FuncType, *ast.InterfaceType, *ast.MapType, *ast.ChanType:
+		fmt.Printf("FuncType and etc\n")
 		return true
 	case *ast.Ident:
+		fmt.Printf("Ident, t.name: %v\n", t.Name)
 		// TODO: Handle types defined within function.
 		for _, d := range p.Decl {
 			gd, ok := d.(*ast.GenDecl)
@@ -1078,6 +1086,7 @@ func (p *Package) hasPointer(f *File, t ast.Expr, top bool) bool {
 				if !ok {
 					continue
 				}
+				fmt.Printf("ts.name.name: %v\n", ts.Name.Name)
 				if ts.Name.Name == t.Name {
 					return p.hasPointer(f, ts.Type, top)
 				}
@@ -1099,6 +1108,7 @@ func (p *Package) hasPointer(f *File, t ast.Expr, top bool) bool {
 		// approach is to assume it has a pointer.
 		return true
 	case *ast.SelectorExpr:
+		fmt.Printf("SelectorExpr\n")
 		if l, ok := t.X.(*ast.Ident); !ok || l.Name != "C" {
 			// Type defined in a different package.
 			// Conservative approach is to assume it has a
