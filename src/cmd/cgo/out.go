@@ -105,8 +105,8 @@ func (p *Package) writeDefs() {
 		fmt.Fprintf(fgo2, "//go:linkname _Cgo_use runtime.cgoUse\n")
 		fmt.Fprintf(fgo2, "func _Cgo_use(interface{})\n")
 	}
-	fmt.Fprintf(fgo2, "//go:linkname _Cgo_no_callback runtime.cgoNoCallback\n")
-	fmt.Fprintf(fgo2, "func _Cgo_no_callback(bool)\n")
+	// fmt.Fprintf(fgo2, "//go:linkname _Cgo_no_callback runtime.cgoNoCallback\n")
+	// fmt.Fprintf(fgo2, "func _Cgo_no_callback(bool)\n")
 
 	typedefNames := make([]string, 0, len(typedef))
 	for name := range typedef {
@@ -602,6 +602,7 @@ func (p *Package) writeDefsFunc(fgo2 io.Writer, n *Name, callsMalloc *bool) {
 
 	fmt.Fprint(fgo2, "\n")
 	fmt.Fprint(fgo2, "//go:cgo_unsafe_args\n")
+	// fmt.Fprint(fgo2, "//go:nosplit\n")
 	conf.Fprint(fgo2, fset, d)
 	fmt.Fprint(fgo2, " {\n")
 
@@ -613,11 +614,13 @@ func (p *Package) writeDefsFunc(fgo2 io.Writer, n *Name, callsMalloc *bool) {
 		arg = "uintptr(unsafe.Pointer(&r1))"
 	}
 
+	/*
 	noCallback := p.noCallbacks[n.C]
 	if noCallback {
 		// disable cgocallback, will check it in runtime.
 		fmt.Fprintf(fgo2, "\t_Cgo_no_callback(true)\n")
 	}
+	*/
 
 	prefix := ""
 	if n.AddError {
@@ -627,9 +630,11 @@ func (p *Package) writeDefsFunc(fgo2 io.Writer, n *Name, callsMalloc *bool) {
 	if n.AddError {
 		fmt.Fprintf(fgo2, "\tif errno != 0 { r2 = syscall.Errno(errno) }\n")
 	}
+	/*
 	if noCallback {
 		fmt.Fprintf(fgo2, "\t_Cgo_no_callback(false)\n")
 	}
+	*/
 
 	// skip _Cgo_use when noescape exist,
 	// so that the compiler won't force to escape them to heap.

@@ -1830,3 +1830,8 @@ func gcTestPointerClass(p unsafe.Pointer) string {
 	KeepAlive(p)
 	return "other"
 }
+
+func HackcgoNoCallback(v bool) {
+	g := getg()
+	g.nocgocallback = v
+}

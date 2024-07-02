@@ -1055,6 +1055,7 @@ func newstack() {
 			throw("runtime: g is running but p is not")
 		}
 
+		// if gp.preemptShrink && !gp.nocgocallback {
 		if gp.preemptShrink {
 			// We're at a synchronous safe point now, so
 			// do the pending stack shrink.
@@ -1101,6 +1102,9 @@ func newstack() {
 		}
 		print("runtime: sp=", hex(sp), " stack=[", hex(gp.stack.lo), ", ", hex(gp.stack.hi), "]\n")
 		throw("stack overflow")
+	}
+	if gp.nocgocallback {
+		print("runtime: sp=", hex(sp), " stack=[", hex(gp.stack.lo), ", ", hex(gp.stack.hi), "]\n")
 	}
 
 	// The goroutine must be executing in order to call newstack,
@@ -1150,6 +1154,7 @@ func isShrinkStackSafe(gp *g) bool {
 	// We also can't *shrink* the stack in the window between the
 	// goroutine calling gopark to park on a channel and
 	// gp.activeStackChans being set.
+	// return gp.syscallsp == 0 && !gp.asyncSafePoint && !gp.parkingOnChan.Load() && !gp.nocgocallback
 	return gp.syscallsp == 0 && !gp.asyncSafePoint && !gp.parkingOnChan.Load()
 }
 
@@ -1158,6 +1163,12 @@ func isShrinkStackSafe(gp *g) bool {
 // gp must be stopped and we must own its stack. It may be in
 // _Grunning, but only if this is our own user G.
 func shrinkstack(gp *g) {
+	/*
+	if gp.nocgocallback {
+		print("skipping shrinkstack due no nocgocallback\n")
+		return
+	}
+	*/
 	if gp.stack.lo == 0 {
 		throw("missing stack in shrinkstack")
 	}

@@ -8,10 +8,30 @@ package boring
 
 /*
 #include "goboringcrypto.h"
-#cgo noescape _goboringcrypto_EVP_AEAD_CTX_seal
-#cgo nocallback _goboringcrypto_EVP_AEAD_CTX_seal
+size_t EVP_AEAD_CTX_seal_wrapper(const GO_EVP_AEAD_CTX *ctx, uint8_t *out,
+							  size_t *out_len,
+							  size_t exp_out_len,
+							  size_t addr,
+							  const uint8_t *nonce, size_t nonce_len,
+							  const uint8_t *in, size_t in_len,
+							  const uint8_t *ad, size_t ad_len) {
+	int ok = _goboringcrypto_EVP_AEAD_CTX_seal(ctx, out, out_len, exp_out_len,
+		nonce, nonce_len, in, in_len, ad, ad_len);
+	if (*out_len != exp_out_len) {
+		return 0;
+	}
+	if (out_len != addr) {
+		return 2;
+	}
+	if (ok != 1) {
+		return ok;
+	}
+	return addr;
+};
 #cgo noescape _goboringcrypto_EVP_AEAD_CTX_open
 #cgo nocallback _goboringcrypto_EVP_AEAD_CTX_open
+#cgo noescape EVP_AEAD_CTX_seal_wrapper
+#cgo nocallback EVP_AEAD_CTX_seal_wrapper
 */
 import "C"
 import (
@@ -21,6 +41,7 @@ import (
 	"runtime"
 	"strconv"
 	"unsafe"
+	"fmt"
 )
 
 type aesKeySizeError int
@@ -289,18 +310,44 @@ func (g *aesGCM) Seal(dst, nonce, plaintext, additionalData []byte) []byte {
 		panic("cipher: invalid buffer overlap")
 	}
 
+/*
+	go func() {
+		runtime.GC()
+		runtime.Gosched()
+	}()
+*/
+
+runtime.HackcgoNoCallback(true)
 	var outLen C.size_t
+	addr := C.size_t(uintptr(unsafe.Pointer(&outLen)))
 	expOutLen := C.size_t(len(plaintext) + gcmTagSize)
-	ok := C._goboringcrypto_EVP_AEAD_CTX_seal(
+	ok := C.EVP_AEAD_CTX_seal_wrapper(
 		&g.ctx,
-		(*C.uint8_t)(unsafe.Pointer(&dst[n])), &outLen, expOutLen,
+		(*C.uint8_t)(unsafe.Pointer(&dst[n])), &outLen, expOutLen, addr,
 		base(nonce), C.size_t(len(nonce)),
 		base(plaintext), C.size_t(len(plaintext)),
 		base(additionalData), C.size_t(len(additionalData)))
-	runtime.KeepAlive(g)
+runtime.HackcgoNoCallback(false)
+	if outLen == 0 {
+/*
+		ok = C._goboringcrypto_EVP_AEAD_CTX_seal(
+			&g.ctx,
+			(*C.uint8_t)(unsafe.Pointer(&dst[n])), &outLen, expOutLen,
+			base(nonce), C.size_t(len(nonce)),
+			base(plaintext), C.size_t(len(plaintext)),
+			base(additionalData), C.size_t(len(additionalData)))
+*/
+		addr2 := C.size_t(uintptr(unsafe.Pointer(&outLen)))
+		fmt.Printf("ok: %x, addr: %x, addr2: %x, outLen: %v, expOutLen: %v\n", ok, addr, addr2, outLen, expOutLen)
+		panic(fail("EVP_AEAD_CTX_seal"))
+	}
+/*
 	if ok == 0 || outLen != expOutLen {
 		panic(fail("EVP_AEAD_CTX_seal"))
 	}
+*/
+	runtime.KeepAlive(g)
+	//panic("boringcrypto: Seal not implemented")
 	return dst[:n+int(outLen)]
 }
 

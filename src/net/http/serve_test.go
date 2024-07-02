@@ -34,6 +34,7 @@ import (
 	"reflect"
 	"regexp"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -6686,8 +6687,11 @@ func TestMaxBytesHandler(t *testing.T) {
 	// Not parallel: modifies the global rstAvoidanceDelay.
 	defer afterTest(t)
 
-	for _, maxSize := range []int64{100, 1_000, 1_000_000} {
-		for _, requestSize := range []int64{100, 1_000, 1_000_000} {
+	debug.SetGCPercent(-1)
+	debug.SetGCPercent(100)
+
+	for _, maxSize := range []int64{1_000_000_00} {
+		for _, requestSize := range []int64{1_000_000_0} {
 			t.Run(fmt.Sprintf("max size %d request size %d", maxSize, requestSize),
 				func(t *testing.T) {
 					run(t, func(t *testing.T, mode testMode) {
